@@ -31,6 +31,61 @@ limitations under the License.
 
 #>
 
+function Find-WindowsKitFile {
+<#
+
+.SYNOPSIS
+Get the full path to a file in the installed Windows kits 
+
+.DESCRIPTION
+This function searches for the files in the installed windows kit (SDK, WDK).
+Please install at least one Windows kit (SDK, WDK) version before using this function.
+
+.LINK
+
+https://github.com/Therena/PowerShellTools
+https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk
+https://docs.microsoft.com/en-us/windows-hardware/drivers/download-the-wdk
+
+.EXAMPLE
+Find-WindowsKitFile -File windbg.exe
+
+Path                                                            WDK Bitness
+----                                                            --- -------
+C:\Program Files (x86)\Windows Kits\10\Debuggers\arm\windbg.exe 10  arm    
+C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\windbg.exe 10  x64    
+C:\Program Files (x86)\Windows Kits\10\Debuggers\x86\windbg.exe 10  x86 
+
+.EXAMPLE
+Find-WindowsKitFile -File kd.exe  
+
+Path                                                        WDK Bitness
+----                                                        --- -------
+C:\Program Files (x86)\Windows Kits\10\Debuggers\arm\kd.exe 10  arm    
+C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\kd.exe 10  x64    
+C:\Program Files (x86)\Windows Kits\10\Debuggers\x86\kd.exe 10  x86    
+
+#>
+    [CmdletBinding()]
+    param (
+        [parameter(Mandatory=$true)]
+        [string]$File      
+    )
+    PROCESS {
+        $FileEntryList = New-Object System.Collections.ArrayList
+        $FoundFiles = Get-ChildItem -Path 'C:\Program Files (x86)\Windows Kits' -Filter $File -File -Recurse
+
+        foreach($FileEntry in $FoundFiles) {
+            $obj = new-object psobject -Property @{ 
+                Bitness = $FileEntry.Directory.Name
+                WDK = $FileEntry.Directory.Parent.Parent.Name
+                Path = $FileEntry.FullName }
+            [void] $fileEntryList.Add($obj)
+        }
+
+        $FileEntryList | Format-Table
+    }
+}
 
 function Get-DebuggerPath {
 <#
@@ -59,18 +114,38 @@ C:\Program Files (x86)\Windows Kits\10\Debuggers\x86\windbg.exe 10  x86
 
 #>
     PROCESS {
-        $windbgList = New-Object System.Collections.ArrayList
-        $files = Get-ChildItem -Path 'C:\Program Files (x86)\Windows Kits' -Filter 'windbg.exe' -File -Recurse -ErrorAction SilentlyContinue -Force
+        Find-WindowsKitFile -File 'windbg.exe'
+    }
+}
 
-        foreach($windbg in $files) {
-            $obj = new-object psobject -Property @{ 
-                Bitness = $windbg.Directory.Name
-                WDK = $windbg.Directory.Parent.Parent.Name
-                Path = $windbg.FullName }
-            [void] $windbgList.Add($obj)
-        }
+function Get-KernelDebuggerPath {
+<#
 
-        $windbgList | Format-Table
+.SYNOPSIS
+Get the paths to the Windows Kernel Debug (kd) executables in the installed Windows kits 
+
+.DESCRIPTION
+This function searches for the Windows Kernel Debug executable files in the installed windows kit (SDK, WDK).
+Please install at least one Windows kit (SDK, WDK) version before using this function.
+
+.LINK
+
+https://github.com/Therena/PowerShellTools
+https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk
+https://docs.microsoft.com/en-us/windows-hardware/drivers/download-the-wdk
+
+.EXAMPLE
+Get-KernelDebuggerPath
+
+Path                                                        WDK Bitness
+----                                                        --- -------
+C:\Program Files (x86)\Windows Kits\10\Debuggers\arm\kd.exe 10  arm    
+C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\kd.exe 10  x64    
+C:\Program Files (x86)\Windows Kits\10\Debuggers\x86\kd.exe 10  x86     
+
+#>
+    PROCESS {
+        Find-WindowsKitFile -File 'kd.exe'
     }
 }
 
@@ -125,18 +200,23 @@ Connect-KernelDebugger
     [CmdletBinding()]
     param (
         [parameter(Mandatory=$true)]
-        [string]$host,
+        [string]$Host,
 
         [parameter(Mandatory=$true)]
-        [string]$port        
+        [string]$Port        
     )
     PROCESS {
-        $windbgFile = Get-DebuggerPath
-        Write-Host -n -k com:pipe,port=\\$host\pipe\$port,resets=0,reconnect
+        $WindbgFile = Get-DebuggerPath
+        Write-Host -n -k com:pipe,port=\\$Host\pipe\$Port,resets=0,reconnect
         #& $windbgFile -n -k com:pipe,port=\\$host\pipe\$port,resets=0,reconnect
     }
 }
 
+#
+# Export the members of the module
+#
 Export-ModuleMember -Function Get-OperatingSystemBitness
 Export-ModuleMember -Function Get-DebuggerPath
+Export-ModuleMember -Function Get-KernelDebuggerPath
+Export-ModuleMember -Function Find-WindowsKitFile
 Export-ModuleMember -Function Connect-KernelDebugger
