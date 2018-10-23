@@ -71,20 +71,17 @@ C:\Program Files (x86)\Windows Kits\10\Debuggers\x86\kd.exe 10  x86
         [parameter(Mandatory=$true)]
         [string]$File      
     )
-    PROCESS {
-        $FileEntryList = New-Object System.Collections.ArrayList
-        $FoundFiles = Get-ChildItem -Path 'C:\Program Files (x86)\Windows Kits' -Filter $File -File -Recurse
+    
+    $FileEntryList = New-Object PSObject
+    $FoundFiles = Get-ChildItem -Path 'C:\Program Files (x86)\Windows Kits' -Filter $File -File -Recurse
 
-        foreach($FileEntry in $FoundFiles) {
-            $obj = new-object psobject -Property @{ 
-                Bitness = $FileEntry.Directory.Name
-                WDK = $FileEntry.Directory.Parent.Parent.Name
-                Path = $FileEntry.FullName }
-            [void] $fileEntryList.Add($obj)
-        }
-
-        $FileEntryList | Format-Table
+    foreach($FileEntry in $FoundFiles) {
+        $FileEntryList | Add-Member noteproperty Bitness $FileEntry.Directory.Name
+        $FileEntryList | Add-Member noteproperty WDK $FileEntry.Directory.Parent.Parent.Name
+        $FileEntryList | Add-Member noteproperty Path $FileEntry.FullName
     }
+
+    return $FileEntryList
 }
 
 function Get-DebuggerPath {
@@ -114,7 +111,7 @@ C:\Program Files (x86)\Windows Kits\10\Debuggers\x86\windbg.exe 10  x86
 
 #>
     PROCESS {
-        Find-WindowsKitFile -File 'windbg.exe'
+        return Find-WindowsKitFile -File 'windbg.exe'
     }
 }
 
@@ -144,9 +141,7 @@ C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\kd.exe 10  x64
 C:\Program Files (x86)\Windows Kits\10\Debuggers\x86\kd.exe 10  x86     
 
 #>
-    PROCESS {
-        Find-WindowsKitFile -File 'kd.exe'
-    }
+    return Find-WindowsKitFile -File 'kd.exe'
 }
 
 function Get-OperatingSystemBitness {
@@ -170,14 +165,40 @@ Type
 x64  
 
 #>
-    PROCESS {
-        if ([Environment]::Is64BitProcess -ne [Environment]::Is64BitOperatingSystem) {
-            $obj = new-object psobject -Property @{ Type = 'x86' }
-        } else {
-            $obj = new-object psobject -Property @{ Type = 'x64' }
-        }
-        $obj | Format-Table
+    $Out = New-Object PSObject
+    if ([Environment]::Is64BitProcess -ne [Environment]::Is64BitOperatingSystem) {
+        $Out | Add-Member noteproperty Type 'x86'
+    } else {
+        $Out | Add-Member noteproperty Type 'x64'
     }
+    return $Out
+}
+
+function Get-DumpAnalysis {
+<#
+
+.SYNOPSIS
+
+Runs and prints an analysis of a crash dump file
+
+.DESCRIPTION
+
+
+.LINK
+
+https://github.com/Therena/PowerShellTools
+
+.EXAMPLE
+Get-DumpAnalysis
+
+#>
+    [CmdletBinding()]
+    param (
+        [parameter(Mandatory=$true, ValueFromPipeline=$True,ValueFromPipelinebyPropertyName=$True)]
+        [string]$Dumpfile     
+    )
+
+    Get-KernelDebuggerPath | ForEach-Object { Write-Host $_ -c """!analyze -v;~* k;q""" -z """$Dumpfile""" }
 }
 
 function Connect-KernelDebugger {
@@ -205,11 +226,10 @@ Connect-KernelDebugger
         [parameter(Mandatory=$true)]
         [string]$Port        
     )
-    PROCESS {
-        $WindbgFile = Get-DebuggerPath
-        Write-Host -n -k com:pipe,port=\\$Host\pipe\$Port,resets=0,reconnect
-        #& $windbgFile -n -k com:pipe,port=\\$host\pipe\$port,resets=0,reconnect
-    }
+
+    $WindbgFile = Get-DebuggerPath
+    Write-Host -n -k com:pipe,port=\\$Host\pipe\$Port,resets=0,reconnect
+    #& $windbgFile -n -k com:pipe,port=\\$host\pipe\$port,resets=0,reconnect
 }
 
 #
@@ -220,3 +240,4 @@ Export-ModuleMember -Function Get-DebuggerPath
 Export-ModuleMember -Function Get-KernelDebuggerPath
 Export-ModuleMember -Function Find-WindowsKitFile
 Export-ModuleMember -Function Connect-KernelDebugger
+Export-ModuleMember -Function Get-DumpAnalysis
