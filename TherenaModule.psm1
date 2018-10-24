@@ -1,20 +1,16 @@
 <#
 
 .SYNOPSIS
-
 Powershell module with helper function for my daily software development
 
 .DESCRIPTION
-
 All the tooling which is needed for my daily software develpment work.
 There is everything from debugging, dump analysis to coding etc.
 
 .LINK
-
 https://github.com/Therena/PowerShellTools
 
 .LICENSE
-
 Copyright 2018 David Roller 
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,8 +37,10 @@ Get the full path to a file in the installed Windows kits
 This function searches for the files in the installed windows kit (SDK, WDK).
 Please install at least one Windows kit (SDK, WDK) version before using this function.
 
-.LINK
+.PARAMETER File
+The file name which has to be located within the Windows Kit installations
 
+.LINK
 https://github.com/Therena/PowerShellTools
 https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk
 https://docs.microsoft.com/en-us/windows-hardware/drivers/download-the-wdk
@@ -103,7 +101,6 @@ This function searches for the Windows Debug executable files in the installed w
 Please install at least one Windows kit (SDK, WDK) version before using this function.
 
 .LINK
-
 https://github.com/Therena/PowerShellTools
 https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk
 https://docs.microsoft.com/en-us/windows-hardware/drivers/download-the-wdk
@@ -132,7 +129,6 @@ This function searches for the Windows Kernel Debug executable files in the inst
 Please install at least one Windows kit (SDK, WDK) version before using this function.
 
 .LINK
-
 https://github.com/Therena/PowerShellTools
 https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk
 https://docs.microsoft.com/en-us/windows-hardware/drivers/download-the-wdk
@@ -160,7 +156,6 @@ Get bitness of the installed Windows operating system
 This function optains the bitness of the current installed Microsoft Windows operating system
 
 .LINK
-
 https://github.com/Therena/PowerShellTools
 
 .EXAMPLE
@@ -189,15 +184,15 @@ function Get-DumpAnalysis {
 <#
 
 .SYNOPSIS
-
 Runs and prints an analysis of a crash dump file
 
 .DESCRIPTION
-
 Forwards the give the crash dump file to the installed kernel debugger to get otain some details about the issue.
 
-.LINK
+.PARAMETER File
+The path to the dump file which needs to be analyzed
 
+.LINK
 https://github.com/Therena/PowerShellTools
 
 .EXAMPLE
@@ -270,15 +265,15 @@ function Open-DumpAnalysis {
 <#
 
 .SYNOPSIS
-
 Opens an analysis of a crash dump file
 
 .DESCRIPTION
-
 Forwards the give the crash dump file to the installed kernel debugger to get otain some details about the issue.
 
-.LINK
+.PARAMETER File
+The path to the dump file which needs to be analyzed
 
+.LINK
 https://github.com/Therena/PowerShellTools
 
 .EXAMPLE
@@ -350,16 +345,19 @@ function Connect-KernelDebugger {
 <#
 
 .SYNOPSIS
-
 Connect the kernel debugger (windbg) to the given host system
 
 .DESCRIPTION
-
 Starts the kernel debugger (windbg) and connects it to the provided pipe of an host system.
 This initilaizes the Windows kernel debugging session.
 
-.LINK
+.PARAMETER Host
+The name of the host system to which the connection should be established
 
+.PARAMETER Port
+The port or pipe name which should be used to connect to the host system
+
+.LINK
 https://github.com/Therena/PowerShellTools
 
 .EXAMPLE
@@ -393,17 +391,62 @@ function Get-LinesOfCode {
 <#
 
 .SYNOPSIS
-
+Count the lines of code in all the selected files
 
 .DESCRIPTION
+Count the lines of code in the selected files or directories.
+Makes it also possible the list the lines of each single file in one directory
 
+.PARAMETER Path
+The path to the file(s) which lines should be counted
+
+.PARAMETER Extensions
+Filter for the file extensions which should be included in the counting
+
+.PARAMETER Recursive
+Defines if the counting should be done recursive for all the subfoders
+
+.PARAMETER FileBased
+Defines if the result will be one line count for all files or the that the line count will be listed for each single file
 
 .LINK
-
 https://github.com/Therena/PowerShellTools
 
 .EXAMPLE
-Get-LinesOfCode
+Get-LinesOfCode -Path C:\ConsoleApplication1\ConsoleApplication1\ConsoleApplication1.cpp
+
+Path                                                                                            Count
+----                                                                                            -----
+C:\ConsoleApplication1\ConsoleApplication1\ConsoleApplication1.cpp                              17
+
+.EXAMPLE
+Get-LinesOfCode -Path C:\ConsoleApplication1 -Recursive
+
+Path                                                Count
+----                                                -----
+C:\ConsoleApplication1                              263
+
+.EXAMPLE
+Get-LinesOfCode -Path C:\ConsoleApplication1 -Recursive -FileBased
+
+Path                                                                                                        Count
+----                                                                                                        -----
+C:\ConsoleApplication1\ConsoleApplication1\ConsoleApplication1.cpp                                           17
+C:\ConsoleApplication1\ConsoleApplication1\ConsoleApplication1.vcxproj                                      168
+C:\ConsoleApplication1\ConsoleApplication1\ConsoleApplication1.vcxproj.filters                               30
+C:\ConsoleApplication1\ConsoleApplication1\ConsoleApplication1.vcxproj.user                                   4
+C:\ConsoleApplication1\ConsoleApplication1\pch.cpp                                                            3
+C:\ConsoleApplication1\ConsoleApplication1\pch.h                                                             11
+C:\ConsoleApplication1\ConsoleApplication1.sln                                                               30
+
+.EXAMPLE
+Get-LinesOfCode -Path C:\ConsoleApplication1 -Recursive -FileBased -Extensions *.cpp,*.h
+
+Path                                                                                            Count
+----                                                                                            -----
+C:\ConsoleApplication1\ConsoleApplication1\ConsoleApplication1.cpp                              17
+C:\ConsoleApplication1\ConsoleApplication1\pch.cpp                                               3
+C:\ConsoleApplication1\ConsoleApplication1\pch.h                                                11
 
 #>
     [CmdletBinding()]
@@ -411,7 +454,7 @@ Get-LinesOfCode
         [parameter(Mandatory=$true)]
         [string]$Path,
 
-        [string]$Extensions = "*.*",
+        [string[]]$Extensions = "*.*",
         
         [switch]$Recursive,
         
