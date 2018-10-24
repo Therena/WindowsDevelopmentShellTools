@@ -146,6 +146,41 @@ C:\Program Files (x86)\Windows Kits\10\Debuggers\x86\kd.exe 10  x86
     return Find-WindowsKitFile -File "kd.exe"
 }
 
+function Get-EicarSignature {
+<#
+
+.SYNOPSIS
+Prints the eicar (European Expert Group for IT-Security) siganture
+
+.DESCRIPTION
+This function prints the eciar (European Expert Group for IT-Security) sigature to the console.
+It is splitted into parts in the script itself to avoid virus detection on the script.
+For the same reason the signature is not completely added to the example output.
+
+.LINK
+http://www.eicar.org
+https://github.com/Therena/PowerShellTools
+
+.EXAMPLE
+Get-EicarSignature
+
+Signature                                                           
+---------                                                           
+...EICAR-STANDARD-ANTIVIRUS-TEST-FILE!...
+  
+
+#>
+    $Table = New-Object System.Data.DataTable "EicarSignature"
+    $Table.Columns.Add($(New-Object system.Data.DataColumn Signature, ([string])))
+    
+    $Row = $Table.NewRow()
+    $Row.Signature = "X5O!P%@AP[4\PZX54(P^)7CC)7}"
+    $Row.Signature += "`$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!`$H+H*"
+    $Table.Rows.Add($Row)
+
+    return $Table
+}
+
 function Get-OperatingSystemBitness {
 <#
 
@@ -499,3 +534,4 @@ Export-ModuleMember -Function Connect-KernelDebugger
 Export-ModuleMember -Function Get-DumpAnalysis
 Export-ModuleMember -Function Open-DumpAnalysis
 Export-ModuleMember -Function Get-LinesOfCode
+Export-ModuleMember -Function Get-EicarSignature
