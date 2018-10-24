@@ -77,7 +77,7 @@ C:\Program Files (x86)\Windows Kits\10\Debuggers\x86\kd.exe 10  x86
     $Table.columns.add($(New-Object system.Data.DataColumn WDK, ([string])))
     $Table.columns.add($(New-Object system.Data.DataColumn Bitness, ([string])))
 
-    $FoundFiles = Get-ChildItem -Path 'C:\Program Files (x86)\Windows Kits' -Filter $File -File -Recurse
+    $FoundFiles = Get-ChildItem -Path "C:\Program Files (x86)\Windows Kits" -Filter $File -File -Recurse
 
     foreach($FileEntry in $FoundFiles) {
         $Row = $Table.NewRow()
@@ -118,7 +118,7 @@ C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\windbg.exe 10  x64
 C:\Program Files (x86)\Windows Kits\10\Debuggers\x86\windbg.exe 10  x86   
 
 #>
-    return Find-WindowsKitFile -File 'windbg.exe'
+    return Find-WindowsKitFile -File "windbg.exe"
 }
 
 function Get-KernelDebuggerPath {
@@ -147,7 +147,7 @@ C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\kd.exe 10  x64
 C:\Program Files (x86)\Windows Kits\10\Debuggers\x86\kd.exe 10  x86     
 
 #>
-    return Find-WindowsKitFile -File 'kd.exe'
+    return Find-WindowsKitFile -File "kd.exe"
 }
 
 function Get-OperatingSystemBitness {
@@ -206,10 +206,24 @@ Get-DumpAnalysis
     [CmdletBinding()]
     param (
         [parameter(Mandatory=$true, ValueFromPipeline=$True,ValueFromPipelinebyPropertyName=$True)]
-        [string]$Dumpfile     
+        [string]$File     
     )
 
-    Get-KernelDebuggerPath | ForEach-Object { Write-Host """$($_.Path)""" -c """!analyze -v;~* k;q""" -z """$Dumpfile""" }
+    if (-Not (Test-Path $File)) {
+       throw "Unable to find the give dump file: $File"
+    }
+
+    $OSBitness = Get-OperatingSystemBitness
+
+    $Debugger = Get-KernelDebuggerPath | Where-Object {
+        $_.Bitness -eq $OSBitness.Type
+    } 
+    
+    $BestSelectionDebugger = $Debugger | Sort-Object -Property WDK | Select-Object -first 1
+
+    $BestSelectionDebugger | ForEach-Object { 
+        & $_.Path -c """!analyze -v;~* k;q""" -z """$File"""
+    }
 }
 
 function Connect-KernelDebugger {
