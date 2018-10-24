@@ -146,6 +146,28 @@ C:\Program Files (x86)\Windows Kits\10\Debuggers\x86\kd.exe 10  x86
     return Find-WindowsKitFile -File "kd.exe"
 }
 
+function Get-SymbolCheck {
+<#
+
+.SYNOPSIS
+Get the paths to the symbol check (symchk) executables in the installed Windows kits 
+
+.DESCRIPTION
+This function searches for the symbol check executable files in the installed windows kit (SDK, WDK).
+Please install at least one Windows kit (SDK, WDK) version before using this function.
+
+.LINK
+https://github.com/Therena/PowerShellTools
+https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk
+https://docs.microsoft.com/en-us/windows-hardware/drivers/download-the-wdk
+
+.EXAMPLE
+Get-SymbolCheck    
+
+#>
+    return Find-WindowsKitFile -File "symchk.exe"
+}
+
 function Get-EicarSignature {
 <#
 
@@ -523,6 +545,47 @@ C:\ConsoleApplication1\ConsoleApplication1\pch.h                                
     return $Table
 }
 
+function Check-Symbols {
+<#
+
+.SYNOPSIS
+
+
+.DESCRIPTION
+
+
+.LINK
+https://github.com/Therena/PowerShellTools
+
+.EXAMPLE
+Check-Symbols
+
+#>
+    [CmdletBinding()]
+    param (
+        [parameter(Mandatory=$true, ValueFromPipeline=$True,ValueFromPipelinebyPropertyName=$True)]
+        [string]$File  
+    )
+
+    if (-Not (Test-Path $File)) {
+       throw "Unable to find the give dump file: $File"
+    }
+
+    $OSBitness = Get-OperatingSystemBitness
+
+    $Debugger = Get-KernelDebuggerPath | Where-Object {
+        $_.Bitness -eq $OSBitness.Type
+    } 
+    
+    $BestSelectionDebugger = $Debugger | Sort-Object -Property WDK | Select-Object -first 1
+
+    #$BestSelectionDebugger | ForEach-Object {
+    #    & $_.Path -c """!analyze -v;""" -z """$File"""
+    #}
+
+    #"C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\symchk.exe" "C:\Program Files (x86)\*.*" /r /oc "C:\Program Files (x86)\" 
+}
+
 #
 # Export the members of the module
 #
@@ -535,3 +598,4 @@ Export-ModuleMember -Function Get-DumpAnalysis
 Export-ModuleMember -Function Open-DumpAnalysis
 Export-ModuleMember -Function Get-LinesOfCode
 Export-ModuleMember -Function Get-EicarSignature
+Export-ModuleMember -Function Get-SymbolCheck
