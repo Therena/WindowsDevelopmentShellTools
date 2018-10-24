@@ -270,16 +270,19 @@ function Connect-KernelDebugger {
 
 .SYNOPSIS
 
+Connect the kernel debugger (windbg) to the given host system
 
 .DESCRIPTION
 
+Starts the kernel debugger (windbg) and connects it to the provided pipe of an host system.
+This initilaizes the Windows kernel debugging session.
 
 .LINK
 
 https://github.com/Therena/PowerShellTools
 
 .EXAMPLE
-Connect-KernelDebugger
+Connect-KernelDebugger -Host wtth0002 -Port DR-TEST-10
 
 #>
     [CmdletBinding()]
@@ -290,10 +293,19 @@ Connect-KernelDebugger
         [parameter(Mandatory=$true)]
         [string]$Port        
     )
+    
 
-    $WindbgFile = Get-DebuggerPath
-    Write-Host -n -k com:pipe,port=\\$Host\pipe\$Port,resets=0,reconnect
-    #& $windbgFile -n -k com:pipe,port=\\$host\pipe\$port,resets=0,reconnect
+    $OSBitness = Get-OperatingSystemBitness
+
+    $Debugger = Get-DebuggerPath | Where-Object {
+        $_.Bitness -eq $OSBitness.Type
+    } 
+    
+    $BestSelectionDebugger = $Debugger | Sort-Object -Property WDK | Select-Object -first 1
+
+    $BestSelectionDebugger | ForEach-Object { 
+        & $_.Path -n -k com:pipe,port=\\$host\pipe\$port,resets=0,reconnect
+    }
 }
 
 #
