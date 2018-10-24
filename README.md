@@ -39,6 +39,9 @@ Count the lines of code in all the selected files
 #### Get-EicarSignature
 Prints the eicar (European Expert Group for IT-Security) siganture
 
+#### Get-SymbolCheck
+Get the paths to the symbol check (symchk) executables in the installed Windows kits
+
 ## License
 
 [Apache 2.0](https://github.com/Therena/PowerShellTools/blob/master/LICENSE)
