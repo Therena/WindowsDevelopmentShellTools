@@ -72,16 +72,24 @@ C:\Program Files (x86)\Windows Kits\10\Debuggers\x86\kd.exe 10  x86
         [string]$File      
     )
     
-    $FileEntryList = New-Object PSObject
+    $Table = New-Object System.Data.DataTable "WindowsKit"
+    $Table.columns.add($(New-Object system.Data.DataColumn Path, ([string])))
+    $Table.columns.add($(New-Object system.Data.DataColumn WDK, ([string])))
+    $Table.columns.add($(New-Object system.Data.DataColumn Bitness, ([string])))
+
     $FoundFiles = Get-ChildItem -Path 'C:\Program Files (x86)\Windows Kits' -Filter $File -File -Recurse
 
     foreach($FileEntry in $FoundFiles) {
-        $FileEntryList | Add-Member noteproperty Bitness $FileEntry.Directory.Name
-        $FileEntryList | Add-Member noteproperty WDK $FileEntry.Directory.Parent.Parent.Name
-        $FileEntryList | Add-Member noteproperty Path $FileEntry.FullName
+        $Row = $Table.NewRow()
+        
+        $Row.Path = $FileEntry.FullName
+        $Row.WDK = $FileEntry.Directory.Parent.Parent.Name
+        $Row.Bitness = $FileEntry.Directory.Name
+        
+        $Table.Rows.Add($Row)
     }
 
-    return $FileEntryList
+    return $Table
 }
 
 function Get-DebuggerPath {
@@ -110,9 +118,7 @@ C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\windbg.exe 10  x64
 C:\Program Files (x86)\Windows Kits\10\Debuggers\x86\windbg.exe 10  x86   
 
 #>
-    PROCESS {
-        return Find-WindowsKitFile -File 'windbg.exe'
-    }
+    return Find-WindowsKitFile -File 'windbg.exe'
 }
 
 function Get-KernelDebuggerPath {
@@ -165,13 +171,18 @@ Type
 x64  
 
 #>
-    $Out = New-Object PSObject
+    $Table = New-Object System.Data.DataTable "Bitness"
+    $Table.columns.add($(New-Object system.Data.DataColumn Type, ([string])))
+
+    $Row = $Table.NewRow()
     if ([Environment]::Is64BitProcess -ne [Environment]::Is64BitOperatingSystem) {
-        $Out | Add-Member noteproperty Type 'x86'
+        $Row.Type = 'x86'
     } else {
-        $Out | Add-Member noteproperty Type 'x64'
+        $Row.Type = 'x64'
     }
-    return $Out
+    $Table.Rows.Add($Row)
+
+    return $Table
 }
 
 function Get-DumpAnalysis {
@@ -198,7 +209,7 @@ Get-DumpAnalysis
         [string]$Dumpfile     
     )
 
-    Get-KernelDebuggerPath | ForEach-Object { Write-Host $_ -c """!analyze -v;~* k;q""" -z """$Dumpfile""" }
+    Get-KernelDebuggerPath | ForEach-Object { Write-Host """$($_.Path)""" -c """!analyze -v;~* k;q""" -z """$Dumpfile""" }
 }
 
 function Connect-KernelDebugger {
