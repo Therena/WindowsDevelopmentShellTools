@@ -73,9 +73,9 @@ C:\Program Files (x86)\Windows Kits\10\Debuggers\x86\kd.exe 10  x86
     )
     
     $Table = New-Object System.Data.DataTable "WindowsKit"
-    $Table.columns.add($(New-Object system.Data.DataColumn Path, ([string])))
-    $Table.columns.add($(New-Object system.Data.DataColumn WDK, ([string])))
-    $Table.columns.add($(New-Object system.Data.DataColumn Bitness, ([string])))
+    $Table.Columns.Add($(New-Object system.Data.DataColumn Path, ([string])))
+    $Table.Columns.Add($(New-Object system.Data.DataColumn WDK, ([string])))
+    $Table.Columns.Add($(New-Object system.Data.DataColumn Bitness, ([string])))
 
     $FoundFiles = Get-ChildItem -Path "C:\Program Files (x86)\Windows Kits" -Filter $File -File -Recurse
 
@@ -172,7 +172,7 @@ x64
 
 #>
     $Table = New-Object System.Data.DataTable "Bitness"
-    $Table.columns.add($(New-Object system.Data.DataColumn Type, ([string])))
+    $Table.Columns.Add($(New-Object system.Data.DataColumn Type, ([string])))
 
     $Row = $Table.NewRow()
     if ([Environment]::Is64BitProcess -ne [Environment]::Is64BitOperatingSystem) {
@@ -389,6 +389,62 @@ Connect-KernelDebugger -Host wtth0002 -Port DR-TEST-10
     }
 }
 
+function Get-LinesOfCode {
+<#
+
+.SYNOPSIS
+
+
+.DESCRIPTION
+
+
+.LINK
+
+https://github.com/Therena/PowerShellTools
+
+.EXAMPLE
+Get-LinesOfCode
+
+#>
+    [CmdletBinding()]
+    param (
+        [parameter(Mandatory=$true)]
+        [string]$Path,
+
+        [string]$Extensions = "*.*",
+        
+        [switch]$Recursive,
+        
+        [switch]$FileBased
+    )
+
+    $Table = New-Object System.Data.DataTable "LineCount"
+    $Table.Columns.Add($(New-Object system.Data.DataColumn Path, ([string])))
+    $Table.Columns.Add($(New-Object system.Data.DataColumn Count, ([long])))
+        
+    if ($Recursive) {
+        $SelectedItems = Get-ChildItem $Path -Include $Extensions -Recurse
+    } else {
+        $SelectedItems = Get-ChildItem $Path -Include $Extensions
+    }
+    
+    if($FileBased) {
+        $SelectedItems | ForEach-Object {
+            $Row = $Table.NewRow()
+            $Row.Path = $_.FullName
+            $Row.Count = ($_ | Select-String .).Count
+            $Table.Rows.Add($Row)
+        }
+    } else {
+        $Row = $Table.NewRow()
+        $Row.Path = $Path
+        $Row.Count = ($SelectedItems | Select-String .).Count
+        $Table.Rows.Add($Row)
+    }
+
+    return $Table
+}
+
 #
 # Export the members of the module
 #
@@ -399,3 +455,4 @@ Export-ModuleMember -Function Find-WindowsKitFile
 Export-ModuleMember -Function Connect-KernelDebugger
 Export-ModuleMember -Function Get-DumpAnalysis
 Export-ModuleMember -Function Open-DumpAnalysis
+Export-ModuleMember -Function Get-LinesOfCode
