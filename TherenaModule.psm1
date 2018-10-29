@@ -382,7 +382,7 @@ dwmcore!CComposition::ProcessComposition+0xa0830:
     )
 
     if (-Not (Test-Path $File)) {
-       throw "Unable to find the give dump file: $File"
+       throw "Unable to find the given dump file: $File"
     }
 
     $OSBitness = Get-OperatingSystemBitness
@@ -545,45 +545,176 @@ C:\ConsoleApplication1\ConsoleApplication1\pch.h                                
     return $Table
 }
 
-function Check-Symbols {
+function Find-Symbols {
 <#
 
 .SYNOPSIS
+Find the symbols (PDBs) for the given path
 
 
 .DESCRIPTION
+Query the symbol server for the symbols of the given path
 
+.PARAMETER Path
+Path to the file or folder for which the symbols should be queried
+
+.PARAMETER DownloadTo
+Optional download location for the found symbol files
+
+.PARAMETER Detailed
+Verbose or detailed output of the symbol query process
 
 .LINK
 https://github.com/Therena/PowerShellTools
 
 .EXAMPLE
-Check-Symbols
+Find-Symbols api-ms-win-core-debug-l1-1-0.dll
+
+SYMCHK: FAILED files = 0
+SYMCHK: PASSED + IGNORED files = 1
+
+.EXAMPLE
+Find-Symbols api-ms-win-core-debug-l1-1-0.dll -Detailed
+
+[SYMCHK] Searching for symbols to C:\api-ms-win-core-debug-l1-1-0.dll in path srv*http://msdl.microsoft.com/download/symbols
+DBGHELP: No header for C:\api-ms-win-core-debug-l1-1-0.dll.  Searching for image on disk
+DBGHELP: C:\api-ms-win-core-debug-l1-1-0.dll - OK
+SYMSRV:  BYINDEX: 0x1
+         http://msdl.microsoft.com/download/symbols
+         api-ms-win-core-debug-l1-1-0.pdb
+         C5046A8FD17643C6D382F009429704681
+SYMSRV:  PATH: C:\ProgramData\dbg\sym\api-ms-win-core-debug-l1-1-0.pdb\C5046A8FD17643C6D382F009429704681\api-ms-win-core-debug-l1-1-0.pdb
+SYMSRV:  RESULT: 0x00000000
+DBGHELP: api-ms-win-core-debug-l1-1-0 - public symbols
+        C:\ProgramData\dbg\sym\api-ms-win-core-debug-l1-1-0.pdb\C5046A8FD17643C6D382F009429704681\api-ms-win-core-debug-l1-1-0.pdb
+[SYMCHK] MODULE64 Info ----------------------
+[SYMCHK] Struct size: 1680 bytes
+[SYMCHK] Base: 0x0000000010000000
+[SYMCHK] Image size: 12288 bytes
+[SYMCHK] Date: 0x12f4f5c9
+[SYMCHK] Checksum: 0x00014647
+[SYMCHK] NumSyms: 0
+[SYMCHK] SymType: SymPDB
+[SYMCHK] ModName: api-ms-win-core-debug-l1-1-0
+[SYMCHK] ImageName: C:\api-ms-win-core-debug-l1-1-0.dll
+[SYMCHK] LoadedImage: C:\api-ms-win-core-debug-l1-1-0.dll
+[SYMCHK] PDB: "C:\ProgramData\dbg\sym\api-ms-win-core-debug-l1-1-0.pdb\C5046A8FD17643C6D382F009429704681\api-ms-win-core-debug-l1-1-0.pdb"
+[SYMCHK] CV: RSDS
+[SYMCHK] CV DWORD: 0x53445352
+[SYMCHK] CV Data:  api-ms-win-core-debug-l1-1-0.pdb
+[SYMCHK] PDB Sig:  0
+[SYMCHK] PDB7 Sig: {C5046A8F-D176-43C6-D382-F00942970468}
+[SYMCHK] Age: 1
+[SYMCHK] PDB Matched:  TRUE
+[SYMCHK] DBG Matched:  TRUE
+[SYMCHK] Line nubmers: FALSE
+[SYMCHK] Global syms:  FALSE
+[SYMCHK] Type Info:    FALSE
+[SYMCHK] ------------------------------------
+SymbolCheckVersion  0x00000002
+Result              0x00030001
+DbgFilename
+DbgTimeDateStamp    0x12f4f5c9
+DbgSizeOfImage      0x00003000
+DbgChecksum         0x00014647
+PdbFilename         C:\ProgramData\dbg\sym\api-ms-win-core-debug-l1-1-0.pdb\C5046A8FD17643C6D382F009429704681\api-ms-win-core-debug-l1-1-0.pdb
+PdbSignature        {C5046A8F-D176-43C6-D382-F00942970468}
+PdbDbiAge           0x00000001
+[SYMCHK] [ 0x00000000 - 0x00030001 ] Checked "C:\api-ms-win-core-debug-l1-1-0.dll"
+
+SYMCHK: FAILED files = 0
+SYMCHK: PASSED + IGNORED files = 1
+
+.EXAMPLE
+Find-Symbols C:\api-ms-win-core-debug-l1-1-0.dll -Detailed -DownloadTo C:\out
+
+[SYMCHK] Searching for symbols to C:\api-ms-win-core-debug-l1-1-0.dll in path srv*http://msdl.microsoft.com/download/symbols
+DBGHELP: No header for C:\api-ms-win-core-debug-l1-1-0.dll.  Searching for image on disk
+DBGHELP: C:\api-ms-win-core-debug-l1-1-0.dll - OK
+SYMSRV:  BYINDEX: 0x1
+         http://msdl.microsoft.com/download/symbols
+         api-ms-win-core-debug-l1-1-0.pdb
+         C5046A8FD17643C6D382F009429704681
+SYMSRV:  PATH: C:\ProgramData\dbg\sym\api-ms-win-core-debug-l1-1-0.pdb\C5046A8FD17643C6D382F009429704681\api-ms-win-core-debug-l1-1-0.pdb
+SYMSRV:  RESULT: 0x00000000
+DBGHELP: api-ms-win-core-debug-l1-1-0 - public symbols
+        C:\ProgramData\dbg\sym\api-ms-win-core-debug-l1-1-0.pdb\C5046A8FD17643C6D382F009429704681\api-ms-win-core-debug-l1-1-0.pdb
+[SYMCHK] MODULE64 Info ----------------------
+[SYMCHK] Struct size: 1680 bytes
+[SYMCHK] Base: 0x0000000010000000
+[SYMCHK] Image size: 12288 bytes
+[SYMCHK] Date: 0x12f4f5c9
+[SYMCHK] Checksum: 0x00014647
+[SYMCHK] NumSyms: 0
+[SYMCHK] SymType: SymPDB
+[SYMCHK] ModName: api-ms-win-core-debug-l1-1-0
+[SYMCHK] ImageName: C:\api-ms-win-core-debug-l1-1-0.dll
+[SYMCHK] LoadedImage: C:\api-ms-win-core-debug-l1-1-0.dll
+[SYMCHK] PDB: "C:\ProgramData\dbg\sym\api-ms-win-core-debug-l1-1-0.pdb\C5046A8FD17643C6D382F009429704681\api-ms-win-core-debug-l1-1-0.pdb"
+[SYMCHK] CV: RSDS
+[SYMCHK] CV DWORD: 0x53445352
+[SYMCHK] CV Data:  api-ms-win-core-debug-l1-1-0.pdb
+[SYMCHK] PDB Sig:  0
+[SYMCHK] PDB7 Sig: {C5046A8F-D176-43C6-D382-F00942970468}
+[SYMCHK] Age: 1
+[SYMCHK] PDB Matched:  TRUE
+[SYMCHK] DBG Matched:  TRUE
+[SYMCHK] Line nubmers: FALSE
+[SYMCHK] Global syms:  FALSE
+[SYMCHK] Type Info:    FALSE
+[SYMCHK] ------------------------------------
+SymbolCheckVersion  0x00000002
+Result              0x00030001
+DbgFilename
+DbgTimeDateStamp    0x12f4f5c9
+DbgSizeOfImage      0x00003000
+DbgChecksum         0x00014647
+PdbFilename         C:\ProgramData\dbg\sym\api-ms-win-core-debug-l1-1-0.pdb\C5046A8FD17643C6D382F009429704681\api-ms-win-core-debug-l1-1-0.pdb
+PdbSignature        {C5046A8F-D176-43C6-D382-F00942970468}
+PdbDbiAge           0x00000001
+[SYMCHK] [ 0x00000000 - 0x00030001 ] Checked "C:\api-ms-win-core-debug-l1-1-0.dll"
+
+SYMCHK: FAILED files = 0
+SYMCHK: PASSED + IGNORED files = 1
 
 #>
     [CmdletBinding()]
     param (
         [parameter(Mandatory=$true, ValueFromPipeline=$True,ValueFromPipelinebyPropertyName=$True)]
-        [string]$File  
+        [string]$Path,
+        
+        [string]$DownloadTo,
+
+        [switch]$Detailed
     )
 
-    if (-Not (Test-Path $File)) {
-       throw "Unable to find the give dump file: $File"
+    if (-Not (Test-Path $Path)) {
+       throw "Unable to find the given file or folder: $Path"
     }
 
     $OSBitness = Get-OperatingSystemBitness
 
-    $Debugger = Get-KernelDebuggerPath | Where-Object {
+    $SymbolCheck = Get-SymbolCheck | Where-Object {
         $_.Bitness -eq $OSBitness.Type
     } 
     
-    $BestSelectionDebugger = $Debugger | Sort-Object -Property WDK | Select-Object -first 1
+    $BestSelectionSymbolCheck = $SymbolCheck | Sort-Object -Property WDK | Select-Object -first 1
 
-    #$BestSelectionDebugger | ForEach-Object {
-    #    & $_.Path -c """!analyze -v;""" -z """$File"""
-    #}
-
-    #"C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\symchk.exe" "C:\Program Files (x86)\*.*" /r /oc "C:\Program Files (x86)\" 
+    $BestSelectionSymbolCheck | ForEach-Object {
+        if ($DownloadTo) {
+            if ($Detailed) {
+                & $_.Path """$Path""" /r /v /oc """$DownloadTo"""
+            } else {
+                & $_.Path """$Path""" /r /oc """$DownloadTo"""
+            }
+        } else {
+            if ($Detailed) {
+                & $_.Path """$Path""" /r /v
+            } else {
+                & $_.Path """$Path""" /r
+            }
+        }
+    }
 }
 
 #
@@ -599,3 +730,4 @@ Export-ModuleMember -Function Open-DumpAnalysis
 Export-ModuleMember -Function Get-LinesOfCode
 Export-ModuleMember -Function Get-EicarSignature
 Export-ModuleMember -Function Get-SymbolCheck
+Export-ModuleMember -Function Find-Symbols
