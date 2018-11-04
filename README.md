@@ -9,7 +9,7 @@ Import-Module .\TherenaModule.psm1 -Force
 
 ## Functions
 
-Please also see the detailed descripton of the functions itself in the code or after importing 
+Please also see the detailed description of the functions itself in the code or after importing 
 the module by calling Get-Help for the specific function.
 
 #### Get-OperatingSystemBitness
@@ -22,7 +22,7 @@ Get the paths to the Windows Debug (WinDBG) executables in the installed Windows
 Get the paths to the Windows Kernel Debug (kd) executables in the installed Windows kits
 
 #### Find-WindowsKitFile
-Get the full path to a file in the installed Windows kits 
+Get the full path to a file in the installed Windows kits
 
 #### Connect-KernelDebugger
 Connect the kernel debugger (windbg) to the given host system
@@ -37,10 +37,16 @@ Opens an analysis of a crash dump file
 Count the lines of code in all the selected files
 
 #### Get-EicarSignature
-Prints the eicar (European Expert Group for IT-Security) siganture
+Prints the eicar (European Expert Group for IT-Security) signature
 
 #### Get-SymbolCheck
 Get the paths to the symbol check (symchk) executables in the installed Windows kits
+
+#### Find-Symbols
+Find the symbols (PDBs) for the given path
+
+#### Get-FileDetails
+Obtain the details of the given file(s) or directory
 
 ## License
 
