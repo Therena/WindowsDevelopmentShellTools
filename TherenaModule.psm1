@@ -721,10 +721,10 @@ function Get-FileDetails {
 <#
 
 .SYNOPSIS
-Optain the details of the given file(s) or directory
+Obtain the details of the given file(s) or directory
 
 .DESCRIPTION
-Optain details about the given file(s) or directories. 
+Obtain details about the given file(s) or directories. 
 Details like Version numbers, file descriptions, company, etc. will be read from the file.
 
 .PARAMETER File
