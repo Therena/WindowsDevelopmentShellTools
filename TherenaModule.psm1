@@ -846,6 +846,151 @@ C:\Windows\write.exe    10.0.17134.1 (WinBuild.160101.0800)   10.0.17134.1   Win
     return $Table
 }
 
+
+$CertificateAssemblies = (
+    "System.Security, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"
+)
+
+$CertificateSource = @"
+    namespace Therena.Encryption
+    {
+        using System;
+        using System.IO;
+        using System.Collections.Generic;
+        using System.Runtime.InteropServices;
+        using System.Security.Cryptography.Pkcs;
+
+        public static class Certificate  
+        { 
+            private const int CERT_QUERY_OBJECT_FILE = 0x1;
+            private const int CERT_QUERY_CONTENT_FLAG_PKCS7_SIGNED_EMBED = 0x400;
+            private const int CERT_QUERY_FORMAT_FLAG_BINARY = 0x2;
+
+            [DllImport("crypt32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+            private static extern bool CryptQueryObject(
+                int dwObjectType,
+                [MarshalAs(UnmanagedType.LPWStr)]
+                string pvObject,
+                int dwExpectedContentTypeFlags,
+                int dwExpectedFormatTypeFlags,
+                int dwFlags,
+                ref int pdwMsgAndCertEncodingType,
+                ref int pdwContentType,
+                ref int pdwFormatType,
+                ref IntPtr phCertStore,
+                ref IntPtr phMsg,
+                ref IntPtr ppvContext
+            );
+    
+            private const int CMSG_ENCODED_MESSAGE = 29;
+
+            [DllImport("crypt32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+            private static extern bool CryptMsgGetParam(
+                IntPtr hCryptMsg,
+                int dwParamType,
+                int dwIndex,
+                byte[] pvData,
+                ref int pcbData
+            );
+    
+            public static System.Security.Cryptography.Pkcs.SignerInfo[] GetCertificates(string filePath)
+            {
+                var file = new FileInfo(filePath);
+                var certs = new List<System.Security.Cryptography.Pkcs.SignerInfo>();
+
+                int pdwMsgAndCertEncodingType = 0;
+                int pdwContentType = 0;
+                int pdwFormatType = 0;
+                IntPtr phCertStore = IntPtr.Zero;
+                IntPtr phMsg = IntPtr.Zero;
+                IntPtr ppvContext = IntPtr.Zero;
+
+                var result = CryptQueryObject(
+                    CERT_QUERY_OBJECT_FILE,
+                    file.FullName,
+                    CERT_QUERY_CONTENT_FLAG_PKCS7_SIGNED_EMBED,
+                    CERT_QUERY_FORMAT_FLAG_BINARY,
+                    0,
+                    ref pdwMsgAndCertEncodingType,
+                    ref pdwContentType,
+                    ref pdwFormatType,
+                    ref phCertStore,
+                    ref phMsg,
+                    ref ppvContext);
+
+                if (result == false)
+                {
+                    return certs.ToArray();
+                }
+
+                int pcbData = 0;
+                CryptMsgGetParam(phMsg, CMSG_ENCODED_MESSAGE, 0, null, ref pcbData);
+
+                var pvData = new byte[pcbData];
+                CryptMsgGetParam(phMsg, CMSG_ENCODED_MESSAGE, 0, pvData, ref pcbData);
+
+                var cms = new SignedCms();
+                cms.Decode(pvData);
+
+                foreach (var signatures in cms.SignerInfos)
+                {
+                    certs.Add(signatures);
+                }
+                return certs.ToArray();
+            }
+        }
+    }
+"@
+
+Add-Type -ReferencedAssemblies $CertificateAssemblies -TypeDefinition $CertificateSource -Language CSharp
+
+function Get-Certificate {
+<#
+
+.SYNOPSIS
+Read the certificates from the given file
+
+.DESCRIPTION
+Read the authenticode certificates from the given file
+
+.PARAMETER File
+The path to the file which should be checked on certificates
+
+.EXAMPLE
+Get-Certificate C:\Windows\System32\drivers\dumpfve.sys
+
+DnsName           DigestAlgorithm PublicKey                                                                                                                                          
+-------           --------------- ---------                                                                                                                                          
+Microsoft Windows sha256          30 82 01 0A 02 82 01 01 00 CA E0 A8 0C CC D6 94 D5 42 FA F8 60 DD 5F BA 35 7E 90 B8 A2 C0 8D 92 6E 5F 10 DD A0 62 75 7A 8F 19 65 3B 65 87 98 38 ...
+
+#>
+    [CmdletBinding()]
+    param (
+        [parameter(Mandatory=$true, ValueFromPipeline=$True, ValueFromPipelinebyPropertyName=$True)]
+        [string]$File   
+    )
+        
+    $Table = New-Object System.Data.DataTable "File Certificates"
+    $Table.Columns.Add($(New-Object system.Data.DataColumn DnsName, ([string])))
+    $Table.Columns.Add($(New-Object system.Data.DataColumn DigestAlgorithm, ([string])))
+    $Table.Columns.Add($(New-Object system.Data.DataColumn PublicKey, ([string])))
+    
+    $CertificateList = [Therena.Encryption.Certificate]::GetCertificates($File)
+    $DnsName = [System.Security.Cryptography.X509Certificates.X509NameType]::DnsName;
+
+    foreach($Cert in $CertificateList) {
+        $Row = $Table.NewRow()
+    
+        $Row.DnsName = $Cert.Certificate.GetNameInfo($DnsName, $false);
+        $Row.DigestAlgorithm = $Cert.DigestAlgorithm.FriendlyName;
+        $Row.PublicKey = [System.BitConverter]::ToString($Cert.Certificate.PublicKey.EncodedKeyValue.RawData).Replace("-", " ")
+
+        $Table.Rows.Add($Row)
+    }
+
+    return $Table
+}
+
 #
 # Export the members of the module
 #
@@ -861,3 +1006,4 @@ Export-ModuleMember -Function Get-EicarSignature
 Export-ModuleMember -Function Get-SymbolCheck
 Export-ModuleMember -Function Find-Symbols
 Export-ModuleMember -Function Get-FileDetails
+Export-ModuleMember -Function Get-Certificate
