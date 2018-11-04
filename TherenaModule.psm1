@@ -66,7 +66,7 @@ C:\Program Files (x86)\Windows Kits\10\Debuggers\x86\kd.exe 10  x86
 #>
     [CmdletBinding()]
     param (
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory=$true, ValueFromPipeline=$True, ValueFromPipelinebyPropertyName=$True)]
         [string]$File      
     )
     
@@ -296,7 +296,7 @@ dwmcore!CComposition::ProcessComposition+0xa0830:
 #>
     [CmdletBinding()]
     param (
-        [parameter(Mandatory=$true, ValueFromPipeline=$True,ValueFromPipelinebyPropertyName=$True)]
+        [parameter(Mandatory=$true, ValueFromPipeline=$True, ValueFromPipelinebyPropertyName=$True)]
         [string]$File  
     )
 
@@ -377,7 +377,7 @@ dwmcore!CComposition::ProcessComposition+0xa0830:
 #>
     [CmdletBinding()]
     param (
-        [parameter(Mandatory=$true, ValueFromPipeline=$True,ValueFromPipelinebyPropertyName=$True)]
+        [parameter(Mandatory=$true, ValueFromPipeline=$True, ValueFromPipelinebyPropertyName=$True)]
         [string]$File  
     )
 
@@ -508,7 +508,7 @@ C:\ConsoleApplication1\ConsoleApplication1\pch.h                                
 #>
     [CmdletBinding()]
     param (
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory=$true, ValueFromPipeline=$True, ValueFromPipelinebyPropertyName=$True)]
         [string]$Path,
 
         [string[]]$Extensions = "*.*",
@@ -680,7 +680,7 @@ SYMCHK: PASSED + IGNORED files = 1
 #>
     [CmdletBinding()]
     param (
-        [parameter(Mandatory=$true, ValueFromPipeline=$True,ValueFromPipelinebyPropertyName=$True)]
+        [parameter(Mandatory=$true, ValueFromPipeline=$True, ValueFromPipelinebyPropertyName=$True)]
         [string]$Path,
         
         [string]$DownloadTo,
@@ -802,7 +802,7 @@ C:\Windows\write.exe    10.0.17134.1 (WinBuild.160101.0800)   10.0.17134.1   Win
 #>
     [CmdletBinding()]
     param (
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory=$true, ValueFromPipeline=$True, ValueFromPipelinebyPropertyName=$True)]
         [string]$File,
 
         [string]$Filter = "*.*",
