@@ -26,7 +26,8 @@ the module by calling Get-Help for the specific function.
 | Get-SymbolCheck | Get the paths to the symbol check (symchk) executables in the installed Windows kits |
 | Find-Symbols | Find the symbols (PDBs) for the given path |
 | Get-FileDetails | Obtain the details of the given file(s) or directory |
-| Get-AuthenticodeSignatureDetails | Read the certificates from the given file |
+| <nobr>Get-AuthenticodeSignatureDetails</nobr> | Read the certificates from the given file |
+| Get-HexDump | Get the content of the file in hexadecimal format |
 
 ## License
 
