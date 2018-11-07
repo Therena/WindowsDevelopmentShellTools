@@ -950,7 +950,7 @@ $CertificateSource = @"
 
 Add-Type -ReferencedAssemblies $CertificateAssemblies -TypeDefinition $CertificateSource -Language CSharp
 
-function Get-NestedAuthenticodeSignatureDetails {
+function Get-NestedAuthenticodeDetails {
 <#
 
 .SYNOPSIS
@@ -969,7 +969,7 @@ The resulting table of all the certificates attached to the file
 https://www.sysadmins.lv/blog-en/reading-multiple-signatures-from-signed-file-with-powershell.aspx
 
 .EXAMPLE
-Get-NestedAuthenticodeSignatureDetails -Certificate $Cert -Table $Table
+Get-NestedAuthenticodeDetails -Certificate $Cert -Table $Table
 
 #>
     [CmdletBinding()]
@@ -998,12 +998,12 @@ Get-NestedAuthenticodeSignatureDetails -Certificate $Cert -Table $Table
 
             $Table.Rows.Add($Row)
             
-            Get-NestedAuthenticodeSignatureDetails -Certificate $Cert -Table $Table
+            Get-NestedAuthenticodeDetails -Certificate $Cert -Table $Table
         }
     }
 }
 
-function Get-AuthenticodeSignatureDetails {
+function Get-AuthenticodeDetails {
 <#
 
 .SYNOPSIS
@@ -1019,7 +1019,7 @@ The path to the file which should be checked on certificates
 https://www.sysadmins.lv/blog-en/reading-multiple-signatures-from-signed-file-with-powershell.aspx
 
 .EXAMPLE
-Get-AuthenticodeSignatureDetails C:\Windows\System32\drivers\dumpfve.sys
+Get-AuthenticodeDetails C:\Windows\System32\drivers\dumpfve.sys
 
 
 Subject         : CN=Microsoft Windows, O=Microsoft Corporation, L=Redmond, S=Washington, C=US
@@ -1204,5 +1204,5 @@ Export-ModuleMember -Function Get-EicarSignature
 Export-ModuleMember -Function Get-SymbolCheck
 Export-ModuleMember -Function Find-Symbols
 Export-ModuleMember -Function Get-FileDetails
-Export-ModuleMember -Function Get-AuthenticodeSignatureDetails
+Export-ModuleMember -Function Get-AuthenticodeDetails
 Export-ModuleMember -Function Get-HexDump
