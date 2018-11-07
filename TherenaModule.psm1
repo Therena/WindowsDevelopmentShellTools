@@ -846,7 +846,6 @@ C:\Windows\write.exe    10.0.17134.1 (WinBuild.160101.0800)   10.0.17134.1   Win
     return $Table
 }
 
-
 $CertificateAssemblies = (
     "System.Security, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"
 )
@@ -1067,6 +1066,129 @@ PublicKey       : 30 82 01 0A 02 82 01 01 00 CA E0 A8 0C CC D6 94 D5 42 FA F8 60
     return $Table
 }
 
+$HexDumpSource = @"
+    namespace Therena.Conversion
+    {
+        using System;
+        using System.IO;
+        using System.Text;
+
+        
+        public static class HexDump  
+        {
+            private const int ELEMANTPERSECTION = 8;
+
+            public static string GetHexDump(FileInfo file, int sectionCount)
+            {
+                if(sectionCount <= 0)
+                {
+                    sectionCount = 2;
+                }
+
+                int bufferSize = ELEMANTPERSECTION * sectionCount;
+
+                var builder = new StringBuilder();
+                using (Stream fileStream = file.OpenRead())
+                {
+                    int position = 0;
+                    var buffer = new byte[bufferSize];
+                    while(position < fileStream.Length)
+                    {
+                        var read = fileStream.Read(buffer, 0, buffer.Length);
+                        if(read > 0)
+                        {
+                            builder.Append(String.Format("{0:x4}: ", position));
+                            position += read;
+
+                            for(uint i = 0; i < bufferSize; ++i)
+                            {
+                                if(i < read)
+                                {
+                                    string hex = String.Format("{0:x2}", (byte)buffer[i]);
+                                    builder.Append(hex + " ");
+                                }
+                                else
+                                {
+                                    builder.Append("   ");
+                                }
+
+                                if(((i + 1) % ELEMANTPERSECTION) == 0)
+                                {
+                                    builder.Append("-- ");
+                                }
+
+                                if(buffer[i] < 32 || buffer[i] > 250)
+                                {
+                                    buffer[i] = (byte)'.';
+                                }
+                            }
+
+                            string bufferContent = Encoding.Default.GetString(buffer);
+                            if(bufferContent.Length > read)
+                            {
+                                bufferContent = bufferContent.Substring(0, read);
+                            }
+                            builder.Append(bufferContent + Environment.NewLine);
+                        }
+                    }
+                }
+                return builder.ToString();
+            }
+        }
+    }
+"@
+
+Add-Type -TypeDefinition $HexDumpSource -Language CSharp
+
+function Get-HexDump {
+<#
+
+.SYNOPSIS
+Get the content of the file in hexadecimal format
+
+.DESCRIPTION
+Get the content of the file in hexadecimal format and print it to the screen
+
+.PARAMETER File
+The file to convert into the hexadecimal byte format
+
+.PARAMETER Width
+The count of the 8 byte secments to show in one row.
+If this parameter is not set it determines the count from the window width of the shell.
+
+.EXAMPLE
+Get-HexDump "C:\Windows\regedit.exe"
+0000: 4d 5a 90 00 03 00 00 00 -- 04 00 00 00 ff ff 00 00    MZ.............
+0010: b8 00 00 00 00 00 00 00 -- 40 00 00 00 00 00 00 00    ¸.......@.......
+0020: 00 00 00 00 00 00 00 00 -- 00 00 00 00 00 00 00 00    ................
+0030: 00 00 00 00 00 00 00 00 -- 00 00 00 00 f0 00 00 00    ............ð...
+0040: 0e 1f ba 0e 00 b4 09 cd -- 21 b8 01 4c cd 21 54 68    ..º..´.Í!¸.LÍ!Th
+0050: 69 73 20 70 72 6f 67 72 -- 61 6d 20 63 61 6e 6e 6f    is program canno
+0060: 74 20 62 65 20 72 75 6e -- 20 69 6e 20 44 4f 53 20    t be run in DOS 
+0070: 6d 6f 64 65 2e 0d 0d 0a -- 24 00 00 00 00 00 00 00    mode....$.......
+0080: e4 16 38 77 a0 77 56 24 -- a0 77 56 24 a0 77 56 24    ä.8w wV$ wV$ wV$
+0090: a9 0f c5 24 a2 77 56 24 -- 82 17 53 25 a1 77 56 24    ©.Å$¢wV$‚.S%¡wV$
+00a0: 82 17 55 25 a4 77 56 24 -- 82 17 52 25 b3 77 56 24    ‚.U%¤wV$‚.R%³wV$
+00b0: 82 17 57 25 81 77 56 24 -- a0 77 57 24 c5 76 56 24    ‚.W%wV$ wW$ÅvV$
+00c0: 82 17 5f 25 be 77 56 24 -- 82 17 a9 24 a1 77 56 24    ‚._%¾wV$‚.©$¡wV$
+00d0: 82 17 54 25 a1 77 56 24 -- 52 69 63 68 a0 77 56 24    ‚.T%¡wV$Rich wV$
+...
+
+#>
+    [CmdletBinding()]
+    param (
+        [parameter(Mandatory=$true, ValueFromPipeline=$True, ValueFromPipelinebyPropertyName=$True)]
+        [string]$File,
+        
+        [int]$Width
+    )
+    
+    if(-Not $PSBoundParameters.ContainsKey("Width")) {
+        $Width = ((Get-Host).UI.RawUI.WindowSize.Width / 100) + 2
+    }
+    return [Therena.Conversion.HexDump]::GetHexDump($File, $Width) 
+}
+
 #
 # Export the members of the module
 #
@@ -1083,3 +1205,4 @@ Export-ModuleMember -Function Get-SymbolCheck
 Export-ModuleMember -Function Find-Symbols
 Export-ModuleMember -Function Get-FileDetails
 Export-ModuleMember -Function Get-AuthenticodeSignatureDetails
+Export-ModuleMember -Function Get-HexDump
