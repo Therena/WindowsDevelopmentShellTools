@@ -4,8 +4,15 @@ Powershell module with helper function for my daily software development work
 
 ## Usage
 
+### Manual import
 The module just needs to be imported into PowerShell be e.g. calling the following command
+```powershell
 Import-Module .\TherenaModule.psm1 -Force
+```
+
+### Installation
+
+Please see: https://docs.microsoft.com/en-us/powershell/developer/module/installing-a-powershell-module
 
 ## Functions
 
