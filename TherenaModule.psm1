@@ -1188,21 +1188,3 @@ Get-HexDump "C:\Windows\regedit.exe"
     }
     return [Therena.Conversion.HexDump]::GetHexDump($File, $Width) 
 }
-
-#
-# Export the members of the module
-#
-Export-ModuleMember -Function Get-OperatingSystemBitness
-Export-ModuleMember -Function Get-DebuggerPath
-Export-ModuleMember -Function Get-KernelDebuggerPath
-Export-ModuleMember -Function Find-WindowsKitFile
-Export-ModuleMember -Function Connect-KernelDebugger
-Export-ModuleMember -Function Get-DumpAnalysis
-Export-ModuleMember -Function Open-DumpAnalysis
-Export-ModuleMember -Function Get-LinesOfCode
-Export-ModuleMember -Function Get-EicarSignature
-Export-ModuleMember -Function Get-SymbolCheck
-Export-ModuleMember -Function Find-Symbols
-Export-ModuleMember -Function Get-FileDetails
-Export-ModuleMember -Function Get-AuthenticodeDetails
-Export-ModuleMember -Function Get-HexDump
