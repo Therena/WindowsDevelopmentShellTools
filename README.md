@@ -12,7 +12,7 @@ Import-Module .\TherenaModule.psd1
 
 ### Installation
 
-1) Create the folder %userprofile%\Documents\WindowsPowerShell\Modules\PowerShellTools
+1) Create the folder %userprofile%\Documents\WindowsPowerShell\Modules\PowerShellTools\TherenaModule
 2) Copy or clone the content of the repository to that folder
 3) The module will be loaded automatically in powershell
 
