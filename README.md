@@ -7,12 +7,17 @@ Powershell module with helper function for my daily software development work
 ### Manual import
 The module just needs to be imported into PowerShell be e.g. calling the following command
 ```powershell
-Import-Module .\TherenaModule.psm1 -Force
+Import-Module .\TherenaModule.psd1
 ```
 
 ### Installation
 
-Please see: https://docs.microsoft.com/en-us/powershell/developer/module/installing-a-powershell-module
+1) Create the folder %userprofile%\Documents\WindowsPowerShell\Modules\PowerShellTools
+2) Copy or clone the content of the repository to that folder
+3) The module will be loaded automatically in powershell
+
+Please also see for details: 
+https://docs.microsoft.com/en-us/powershell/developer/module/installing-a-powershell-module
 
 ## Functions
 
