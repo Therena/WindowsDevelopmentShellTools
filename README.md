@@ -16,7 +16,7 @@ Import-Module .\TherenaModule.psd1
 2) Copy or clone the content of the repository to that folder
 3) The module will be loaded automatically in powershell
 
-Please also see for details: 
+Please also see for more details: 
 https://docs.microsoft.com/en-us/powershell/developer/module/installing-a-powershell-module
 
 ## Functions
