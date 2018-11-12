@@ -1217,7 +1217,7 @@ System.Linq                                                                     
     
     $Table = New-Object System.Data.DataTable "Global Assembly Cache"
     $Table.Columns.Add($(New-Object system.Data.DataColumn Assembly, ([string])))
-    $Table.Columns.Add($(New-Object system.Data.DataColumn Version, ([string])))
+    $Table.Columns.Add($(New-Object system.Data.DataColumn Version, ([System.Version])))
     $Table.Columns.Add($(New-Object system.Data.DataColumn ProcessorArchitecture, ([string])))
 
     $GlobalAssemblyCache = Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Fusion\GACChangeNotification\Default"
@@ -1229,8 +1229,9 @@ System.Linq                                                                     
         $AssemblyDescriptionParts = $AssemblyDescription.Split(',');
     
         if($AssemblyDescriptionParts.Length -gt 4) {
+        
             $Row.Assembly = $AssemblyDescriptionParts[0]
-            $Row.Version = $AssemblyDescriptionParts[1]
+            $Row.Version = [System.Version]$AssemblyDescriptionParts[1]
             $Row.ProcessorArchitecture = $AssemblyDescriptionParts[4].ToUpper()
 
             $Table.Rows.Add($Row)
