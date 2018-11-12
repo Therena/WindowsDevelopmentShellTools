@@ -1188,3 +1188,54 @@ Get-HexDump "C:\Windows\regedit.exe"
     }
     return [Therena.Conversion.HexDump]::GetHexDump($File, $Width) 
 }
+
+function Get-GlobalAssemblyCache {
+<#
+
+.SYNOPSIS
+Read the entries of the global assembly cache from the registry
+
+.DESCRIPTION
+Read the global assembly cache elements from the registry path
+HKLM:\SOFTWARE\Microsoft\Fusion\GACChangeNotification\Default
+
+.EXAMPLE
+Get-GlobalAssemblyCache
+
+Assembly                                                                         Version      ProcessorArchitecture
+--------                                                                         -------      ---------------------
+System.Runtime                                                                   4.0.0.0      MSIL
+System.IdentityModel.Selectors                                                   4.0.0.0      MSIL
+System.AddIn.Contract                                                            4.0.0.0      MSIL
+PresentationFramework-SystemDrawing                                              4.0.0.0      MSIL
+System.Runtime.Extensions                                                        4.0.0.0      MSIL
+System.Linq                                                                      4.0.0.0      MSIL
+
+#>
+    [CmdletBinding()]
+    param ()
+    
+    $Table = New-Object System.Data.DataTable "Global Assembly Cache"
+    $Table.Columns.Add($(New-Object system.Data.DataColumn Assembly, ([string])))
+    $Table.Columns.Add($(New-Object system.Data.DataColumn Version, ([string])))
+    $Table.Columns.Add($(New-Object system.Data.DataColumn ProcessorArchitecture, ([string])))
+
+    $GlobalAssemblyCache = Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Fusion\GACChangeNotification\Default"
+    $GlobalAssemblyCache = $GlobalAssemblyCache.PSObject.Properties.Name;
+
+    foreach($AssemblyDescription in $GlobalAssemblyCache) {
+        $Row = $Table.NewRow()
+
+        $AssemblyDescriptionParts = $AssemblyDescription.Split(',');
+    
+        if($AssemblyDescriptionParts.Length -gt 4) {
+            $Row.Assembly = $AssemblyDescriptionParts[0]
+            $Row.Version = $AssemblyDescriptionParts[1]
+            $Row.ProcessorArchitecture = $AssemblyDescriptionParts[4].ToUpper()
+
+            $Table.Rows.Add($Row)
+        }
+    }
+
+    return $Table
+}
