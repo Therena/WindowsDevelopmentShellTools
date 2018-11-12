@@ -40,6 +40,7 @@ the module by calling Get-Help for the specific function.
 | Get-FileDetails | Obtain the details of the given file(s) or directory |
 | Get-AuthenticodeDetails | Read the certificates from the given file |
 | Get-HexDump | Get the content of the file in hexadecimal format |
+| Get-GlobalAssemblyCache | Read the entries of the global assembly cache from the registry |
 
 ## License
 
