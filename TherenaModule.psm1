@@ -1240,3 +1240,56 @@ System.Linq                                                                     
 
     return $Table
 }
+
+function Get-DateTime {
+<#
+
+.SYNOPSIS
+Get the date and time in different formats
+
+.DESCRIPTION
+Get the date and time in unix time, file time, ISO time, etc. 
+
+.EXAMPLE
+Get-DateTime
+
+Format    Time
+------    ----
+Time      13.11.2018 21:02:58
+Unix Time 1542142978
+File Time 131866129788272588
+ISO Date  2018-11-13T21:02:58
+
+#>
+    [CmdletBinding()]
+    param ()
+    
+    $Table = New-Object System.Data.DataTable "Time"
+    $Table.Columns.Add($(New-Object system.Data.DataColumn Format, ([string])))
+    $Table.Columns.Add($(New-Object system.Data.DataColumn Time, ([string])))
+
+    $Time = [System.DateTime]::Now
+    $Time1970 = New-Object System.DateTime 1970, 1, 1
+
+    $Row = $Table.NewRow()
+    $Row.Format = "Time"
+    $Row.Time = $Time
+    $Table.Rows.Add($Row)
+
+    $Row = $Table.NewRow()
+    $Row.Format = "Unix Time"
+    $Row.Time = [System.Math]::Floor(($Time - $Time1970).TotalSeconds)
+    $Table.Rows.Add($Row)
+    
+    $Row = $Table.NewRow()
+    $Row.Format = "File Time"
+    $Row.Time = $Time.ToFileTime()
+    $Table.Rows.Add($Row)
+    
+    $Row = $Table.NewRow()
+    $Row.Format = "ISO Date"
+    $Row.Time = $Time.ToString("s", [System.Globalization.CultureInfo]::InvariantCulture);
+    $Table.Rows.Add($Row)
+
+    return $Table
+}
