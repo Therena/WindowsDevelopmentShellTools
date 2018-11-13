@@ -41,6 +41,7 @@ the module by calling Get-Help for the specific function.
 | Get-AuthenticodeDetails | Read the certificates from the given file |
 | Get-HexDump | Get the content of the file in hexadecimal format |
 | Get-GlobalAssemblyCache | Read the entries of the global assembly cache from the registry |
+| Get-DateTime | Get the date and time in different formats |
 
 ## License
 
