@@ -1,6 +1,6 @@
 # Windows-Development-Shell-Tools 
 
-Powershell module with helper function for my daily software development work
+Powershells module with helper function for my daily software development work
 
 ## Usage
 
@@ -12,7 +12,10 @@ Import-Module .\Windows-Development-Shell-Tools .psd1
 
 ### Installation
 
-1) Create the folder %userprofile%\Documents\WindowsPowerShell\Modules\PowerShellTools\Windows-Development-Shell-Tools 
+1) Create the folder
+```powershell
+New-Item -ItemType directory -Path $Hom\Documents\WindowsPowerShell\Modules\PowerShellTools\Windows-Development-Shell-Tools 
+```
 2) Copy or clone the content of the repository to that folder
 3) The module will be loaded automatically in powershell
 
