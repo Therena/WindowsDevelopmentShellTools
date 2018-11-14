@@ -1,35 +1,17 @@
-# Windows-Development-Shell-Tools 
+# Windows-Development-Shell-Tools
 
-Powershells module with helper function for my daily software development work
+For fast and effective development of software for the Microsoft Windows operating system a bunch of tools are quite helpful.
+Having them accessable from the Powershell gives the advantage to make them very easy to use and avalible for everywhere in Windows.
 
-## Usage
+In case the development is done using Microsoft Visual Studio there is a plugin to include ConEmu which allows you to use the 
+Powershell and therefor also this module directly in your IDE.
+For details please see the readme of the project: https://github.com/Therena/ConEmuIntegration 
 
-### Manual import
-The module just needs to be imported into PowerShell be e.g. calling the following command
-```powershell
-Import-Module .\Windows-Development-Shell-Tools .psd1
-```
 
-### Installation
+## Commandlets included in the module
 
-1) Create the folder
-```powershell
-New-Item -ItemType directory -Path $Home\Documents\WindowsPowerShell\Modules\Windows-Development-Shell-Tools 
-```
-2) Copy or clone the content of the repository to that folder
-```powershell
-cd $Home\Documents\WindowsPowerShell\Modules\Windows-Development-Shell-Tools
-git clone https://github.com/Therena/Windows-Development-Shell-Tools.git .
-```
-3) The module will be loaded automatically in powershell
-
-Please also see for more details:
-[Microsoft Docs - Installing a PowerShell Module](https://docs.microsoft.com/en-us/powershell/developer/module/installing-a-powershell-module)
-
-## Functions
-
-Please also see the detailed description of the functions itself in the code or after importing 
-the module by calling Get-Help for the specific function.
+Please also see the detailed description of the commandlets itself in the code or after importing 
+the module by calling Get-Help for the specific commandlet.
 
 | Function  | Description  |
 |-----------|--------------|
@@ -49,6 +31,62 @@ the module by calling Get-Help for the specific function.
 | Get-HexDump | Get the content of the file in hexadecimal format |
 | Get-GlobalAssemblyCache | Read the entries of the global assembly cache from the registry |
 | Get-DateTime | Get the date and time in different formats |
+
+## Usage of the powershell module
+
+### Manual import
+
+The module just needs to be imported into PowerShell be e.g. calling the following command
+
+```powershell
+Import-Module .\Windows-Development-Shell-Tools .psd1
+```
+
+### Installation
+
+1) Create the folder
+
+```powershell
+New-Item -ItemType directory -Path $Home\Documents\WindowsPowerShell\Modules\Windows-Development-Shell-Tools 
+```
+
+2) Copy or clone the content of the repository to that folder
+
+```powershell
+cd $Home\Documents\WindowsPowerShell\Modules\Windows-Development-Shell-Tools
+git clone https://github.com/Therena/Windows-Development-Shell-Tools.git .
+```
+
+3) The module will be loaded automatically in powershell
+
+Please also see for more details:
+[Microsoft Docs - Installing a PowerShell Module](https://docs.microsoft.com/en-us/powershell/developer/module/installing-a-powershell-module)
+
+### Calling commandlets and explore help
+
+After the module is imported or installed into the powershell all the commandlets from the module are available.
+For example the "Get-DateTime" commandlet:
+```powershell
+PS C:\>Get-DateTime
+
+    Format    Time
+    ------    ----
+    Time      13.11.2018 21:02:58
+    Unix Time 1542142978
+    File Time 131866129788272588
+    ISO Date  2018-11-13T21:02:58
+```
+
+In case you want to have some more details about a commandlet, there is a detailed help included for each single commandlet.
+To get this help displayed please use the "Get-Help" commandlet:
+```powershell
+Get-Help Get-DateTime
+```
+
+The "Detailed" flag causes that the examples are shown as well:
+```powershell
+Get-Help Get-DateTime -Detailed
+```
 
 ## License
 
