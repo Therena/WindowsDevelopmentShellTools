@@ -1,14 +1,14 @@
 <#
 
 .SYNOPSIS
-Powershell module with helper function for my daily software development
+Powershell commandlets for software development on the Microsoft Windows operating system
 
 .DESCRIPTION
-All the tooling which is needed for my daily software develpment work.
-There is everything from debugging, dump analysis to coding etc.
+For fast and effective development of software for the Microsoft Windows operating system a bunch of tools are quite helpful.
+Having them accessable from the Powershell gives the advantage to make them very easy to use and avalible for everywhere in Windows.
 
 .LINK
-https://github.com/Therena/PowerShellTools
+https://github.com/Therena/Windows-Development-Shell-Tools
 
 .LICENSE
 Copyright 2018 David Roller 
@@ -41,7 +41,7 @@ Please install at least one Windows kit (SDK, WDK) version before using this fun
 The file name which has to be located within the Windows Kit installations
 
 .LINK
-https://github.com/Therena/PowerShellTools
+https://github.com/Therena/Windows-Development-Shell-Tools
 https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk
 https://docs.microsoft.com/en-us/windows-hardware/drivers/download-the-wdk
 
@@ -101,7 +101,7 @@ This function searches for the Windows Debug executable files in the installed w
 Please install at least one Windows kit (SDK, WDK) version before using this function.
 
 .LINK
-https://github.com/Therena/PowerShellTools
+https://github.com/Therena/Windows-Development-Shell-Tools
 https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk
 https://docs.microsoft.com/en-us/windows-hardware/drivers/download-the-wdk
 
@@ -129,7 +129,7 @@ This function searches for the Windows Kernel Debug executable files in the inst
 Please install at least one Windows kit (SDK, WDK) version before using this function.
 
 .LINK
-https://github.com/Therena/PowerShellTools
+https://github.com/Therena/Windows-Development-Shell-Tools
 https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk
 https://docs.microsoft.com/en-us/windows-hardware/drivers/download-the-wdk
 
@@ -157,7 +157,7 @@ This function searches for the symbol check executable files in the installed wi
 Please install at least one Windows kit (SDK, WDK) version before using this function.
 
 .LINK
-https://github.com/Therena/PowerShellTools
+https://github.com/Therena/Windows-Development-Shell-Tools
 https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk
 https://docs.microsoft.com/en-us/windows-hardware/drivers/download-the-wdk
 
@@ -181,7 +181,7 @@ For the same reason the signature is not completely added to the example output.
 
 .LINK
 http://www.eicar.org
-https://github.com/Therena/PowerShellTools
+https://github.com/Therena/Windows-Development-Shell-Tools
 
 .EXAMPLE
 Get-EicarSignature
@@ -213,7 +213,7 @@ Get bitness of the installed Windows operating system
 This function optains the bitness of the current installed Microsoft Windows operating system
 
 .LINK
-https://github.com/Therena/PowerShellTools
+https://github.com/Therena/Windows-Development-Shell-Tools
 
 .EXAMPLE
 Get-OperatingSystemBitness
@@ -250,7 +250,7 @@ Forwards the give the crash dump file to the installed kernel debugger to get ot
 The path to the dump file which needs to be analyzed
 
 .LINK
-https://github.com/Therena/PowerShellTools
+https://github.com/Therena/Windows-Development-Shell-Tools
 
 .EXAMPLE
 Get-DumpAnalysis -File "dwm.exe.1168.dmp"
@@ -331,7 +331,7 @@ Forwards the give the crash dump file to the installed kernel debugger to get ot
 The path to the dump file which needs to be analyzed
 
 .LINK
-https://github.com/Therena/PowerShellTools
+https://github.com/Therena/Windows-Development-Shell-Tools
 
 .EXAMPLE
 Get-DumpAnalysis -File "dwm.exe.1168.dmp"
@@ -415,7 +415,7 @@ The name of the host system to which the connection should be established
 The port or pipe name which should be used to connect to the host system
 
 .LINK
-https://github.com/Therena/PowerShellTools
+https://github.com/Therena/Windows-Development-Shell-Tools
 
 .EXAMPLE
 Connect-KernelDebugger -Host wtth0002 -Port DR-TEST-10
@@ -467,7 +467,7 @@ Defines if the counting should be done recursive for all the subfoders
 Defines if the result will be one line count for all files or the that the line count will be listed for each single file
 
 .LINK
-https://github.com/Therena/PowerShellTools
+https://github.com/Therena/Windows-Development-Shell-Tools
 
 .EXAMPLE
 Get-LinesOfCode -Path C:\ConsoleApplication1\ConsoleApplication1\ConsoleApplication1.cpp
@@ -565,7 +565,7 @@ Optional download location for the found symbol files
 Verbose or detailed output of the symbol query process
 
 .LINK
-https://github.com/Therena/PowerShellTools
+https://github.com/Therena/Windows-Development-Shell-Tools
 
 .EXAMPLE
 Find-Symbols api-ms-win-core-debug-l1-1-0.dll
@@ -735,6 +735,9 @@ Filter for specific file types
 
 .PARAMETER Recursive
 Defines if the the sub directories should be taken into account as well
+
+.LINK
+https://github.com/Therena/Windows-Development-Shell-Tools
 
 .EXAMPLE
 Get-FileDetails C:\Windows\regedit.exe
@@ -966,6 +969,7 @@ The parent signature to check for nested certificates
 The resulting table of all the certificates attached to the file
 
 .LINK
+https://github.com/Therena/Windows-Development-Shell-Tools
 https://www.sysadmins.lv/blog-en/reading-multiple-signatures-from-signed-file-with-powershell.aspx
 
 .EXAMPLE
@@ -1016,6 +1020,7 @@ Read the authenticode certificates from the given file
 The path to the file which should be checked on certificates
 
 .LINK
+https://github.com/Therena/Windows-Development-Shell-Tools
 https://www.sysadmins.lv/blog-en/reading-multiple-signatures-from-signed-file-with-powershell.aspx
 
 .EXAMPLE
@@ -1156,6 +1161,9 @@ The file to convert into the hexadecimal byte format
 The count of the 8 byte secments to show in one row.
 If this parameter is not set it determines the count from the window width of the shell.
 
+.LINK
+https://github.com/Therena/Windows-Development-Shell-Tools
+
 .EXAMPLE
 Get-HexDump "C:\Windows\regedit.exe"
 0000: 4d 5a 90 00 03 00 00 00 -- 04 00 00 00 ff ff 00 00    MZ.............
@@ -1198,6 +1206,9 @@ Read the entries of the global assembly cache from the registry
 .DESCRIPTION
 Read the global assembly cache elements from the registry path
 HKLM:\SOFTWARE\Microsoft\Fusion\GACChangeNotification\Default
+
+.LINK
+https://github.com/Therena/Windows-Development-Shell-Tools
 
 .EXAMPLE
 Get-GlobalAssemblyCache
@@ -1249,6 +1260,9 @@ Get the date and time in different formats
 
 .DESCRIPTION
 Get the date and time in unix time, file time, ISO time, etc. 
+
+.LINK
+https://github.com/Therena/Windows-Development-Shell-Tools
 
 .EXAMPLE
 Get-DateTime
