@@ -17,6 +17,10 @@ Import-Module .\Windows-Development-Shell-Tools .psd1
 New-Item -ItemType directory -Path $Home\Documents\WindowsPowerShell\Modules\Windows-Development-Shell-Tools 
 ```
 2) Copy or clone the content of the repository to that folder
+```powershell
+cd $Home\Documents\WindowsPowerShell\Modules\Windows-Development-Shell-Tools
+git clone https://github.com/Therena/Windows-Development-Shell-Tools.git .
+```
 3) The module will be loaded automatically in powershell
 
 Please also see for more details: 
