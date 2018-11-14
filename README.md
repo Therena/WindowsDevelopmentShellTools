@@ -14,7 +14,7 @@ Import-Module .\Windows-Development-Shell-Tools .psd1
 
 1) Create the folder
 ```powershell
-New-Item -ItemType directory -Path $Hom\Documents\WindowsPowerShell\Modules\PowerShellTools\Windows-Development-Shell-Tools 
+New-Item -ItemType directory -Path $Home\Documents\WindowsPowerShell\Modules\Windows-Development-Shell-Tools 
 ```
 2) Copy or clone the content of the repository to that folder
 3) The module will be loaded automatically in powershell
