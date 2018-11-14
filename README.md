@@ -23,8 +23,8 @@ git clone https://github.com/Therena/Windows-Development-Shell-Tools.git .
 ```
 3) The module will be loaded automatically in powershell
 
-Please also see for more details: 
-https://docs.microsoft.com/en-us/powershell/developer/module/installing-a-powershell-module
+Please also see for more details:
+[Microsoft Docs - Installing a PowerShell Module](https://docs.microsoft.com/en-us/powershell/developer/module/installing-a-powershell-module)
 
 ## Functions
 
