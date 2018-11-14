@@ -1,4 +1,4 @@
-# PowerShellTools
+# Windows-Development-Shell-Tools 
 
 Powershell module with helper function for my daily software development work
 
@@ -7,12 +7,12 @@ Powershell module with helper function for my daily software development work
 ### Manual import
 The module just needs to be imported into PowerShell be e.g. calling the following command
 ```powershell
-Import-Module .\TherenaModule.psd1
+Import-Module .\Windows-Development-Shell-Tools .psd1
 ```
 
 ### Installation
 
-1) Create the folder %userprofile%\Documents\WindowsPowerShell\Modules\PowerShellTools\TherenaModule
+1) Create the folder %userprofile%\Documents\WindowsPowerShell\Modules\PowerShellTools\Windows-Development-Shell-Tools 
 2) Copy or clone the content of the repository to that folder
 3) The module will be loaded automatically in powershell
 
@@ -45,4 +45,4 @@ the module by calling Get-Help for the specific function.
 
 ## License
 
-[Apache 2.0](https://github.com/Therena/PowerShellTools/blob/master/LICENSE)
+[Apache 2.0](https://github.com/Therena/Windows-Development-Shell-Tools/blob/master/LICENSE)
