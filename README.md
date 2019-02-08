@@ -1,4 +1,4 @@
-# Windows-Development-Shell-Tools
+# Windows Development Shell Tools
 
 For fast and effective development of software for the Microsoft Windows operating system a bunch of tools are quite helpful.
 Having them accessable from the Powershell gives the advantage to make them very easy to use and avalible for everywhere in Windows.
@@ -54,7 +54,7 @@ New-Item -ItemType directory -Path $Home\Documents\WindowsPowerShell\Modules\Win
 
 ```powershell
 cd $Home\Documents\WindowsPowerShell\Modules\Windows-Development-Shell-Tools
-git clone https://github.com/Therena/Windows-Development-Shell-Tools.git .
+git clone https://github.com/Therena/WindowsDevelopmentShellTools.git
 ```
 
 3) The module will be loaded automatically in powershell
@@ -90,4 +90,4 @@ Get-Help Get-DateTime -Detailed
 
 ## License
 
-[Apache 2.0](https://github.com/Therena/Windows-Development-Shell-Tools/blob/master/LICENSE)
+[Apache 2.0](https://github.com/Therena/WindowsDevelopmentShellTools/blob/master/LICENSE)
