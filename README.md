@@ -39,7 +39,7 @@ the module by calling Get-Help for the specific commandlet.
 The module just needs to be imported into PowerShell be e.g. calling the following command
 
 ```powershell
-Import-Module .\Windows-Development-Shell-Tools .psd1
+Import-Module .\WindowsDevelopmentShellTools.psd1
 ```
 
 ### Installation
