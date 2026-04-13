@@ -1,93 +1,136 @@
 # Windows Development Shell Tools
 
-For fast and effective development of software for the Microsoft Windows operating system a bunch of tools are quite helpful.
-Having them accessable from the Powershell gives the advantage to make them very easy to use and avalible for everywhere in Windows.
+> *PowerShell cmdlets that put common Windows debugging, signing, and kit workflows one pipeline away.*
 
-In case the development is done using Microsoft Visual Studio there is a plugin to include ConEmu which allows you to use the 
-Powershell and therefor also this module directly in your IDE.
-For details please see the readme of the project: https://github.com/Therena/ConEmuIntegration 
+**Windows Development Shell Tools** is a PowerShell module for day-to-day work on Microsoft Windows: locating Windows SDK / WDK tools, inspecting dumps and binaries, counting lines of code, reading Authenticode chains, and more. Commands are documented with comment-based help and typically return **`System.Data.DataTable`** objects so results stay structured and easy to filter.
 
+| | |
+|:---|:---|
+| **Module name** | `Windows-Development-Shell-Tools` |
+| **Current version** | See `ModuleVersion` in [`Module/Windows-Development-Shell-Tools.psd1`](Module/Windows-Development-Shell-Tools.psd1) |
+| **PowerShell** | Windows PowerShell **5.1** and **PowerShell 7+** (`pwsh`) on Windows |
+| **License** | [Apache 2.0](https://github.com/Therena/WindowsDevelopmentShellTools/blob/master/LICENSE) |
 
-## Commandlets included in the module
+---
 
-Please also see the detailed description of the commandlets itself in the code or after importing 
-the module by calling Get-Help for the specific commandlet.
+## Requirements
 
-| Function  | Description  |
-|-----------|--------------|
-| Get-OperatingSystemBitness | Get bitness of the installed Windows operating system |
-| Get-DebuggerPath | Get the paths to the Windows Debug (WinDBG) executables in the installed Windows kits |
-| Get-KernelDebuggerPath | Get the paths to the Windows Kernel Debug (kd) executables in the installed Windows kits |
-| Find-WindowsKitFile | Get the full path to a file in the installed Windows kits |
-| Connect-KernelDebugger | Connect the kernel debugger (windbg) to the given host system |
-| Get-DumpAnalysis | Runs and prints an analysis of a crash dump file |
-| Open-DumpAnalysis | Opens an analysis of a crash dump file |
-| Get-LinesOfCode | Count the lines of code in all the selected files |
-| Get-EicarSignature | Prints the eicar (European Expert Group for IT-Security) signature |
-| Get-SymbolCheck | Get the paths to the symbol check (symchk) executables in the installed Windows kits |
-| Find-Symbols | Find the symbols (PDBs) for the given path |
-| Get-FileDetails | Obtain the details of the given file(s) or directory |
-| Get-AuthenticodeDetails | Read the certificates from the given file |
-| Get-HexDump | Get the content of the file in hexadecimal format |
-| Get-GlobalAssemblyCache | Read the entries of the global assembly cache from the registry |
-| Get-DateTime | Get the date and time in different formats |
+- **OS:** Windows (cmdlets rely on Windows APIs, registry, and typical developer tool layouts).
+- **PowerShell:** 5.1 or later ([`#Requires -Version 5.1`](https://learn.microsoft.com/powershell/module/microsoft.powershell.core/about/about_requires) is used in repo scripts).
+- **Optional:** Windows SDK and/or WDK installed for commands that resolve kit binaries (WinDbg, `symchk`, kernel debugger paths, etc.).
 
-## Usage of the powershell module
+---
 
-### Manual import
+## Installation
 
-The module just needs to be imported into PowerShell be e.g. calling the following command
+### Recommended: install to your profile (both hosts)
+
+From a clone of this repository, run the installer at the repo root. It copies the [`Module`](Module) folder into the **per-user** module paths for **Windows PowerShell** and **PowerShell 7+** so either `powershell.exe` or `pwsh.exe` can load the same version.
 
 ```powershell
-Import-Module .\WindowsDevelopmentShellTools.psd1
+cd C:\path\to\WindowsDevelopmentShellTools
+.\Install-DevelopmentShellTools.ps1
 ```
 
-### Installation
+| Switch | Purpose |
+|:-------|:--------|
+| `-Force` | Replace an existing install of the **same** manifest version. |
+| `-SkipWindowsPowerShell` | Only install under `Documents\PowerShell\Modules` (pwsh). |
+| `-SkipPowerShellCore` | Only install under `Documents\WindowsPowerShell\Modules` (5.1). |
+| `-WhatIf` | Show what would be copied without changing disk. |
 
-1) Create the folder
+Then start a new session and import:
 
 ```powershell
-New-Item -ItemType directory -Path $Home\Documents\WindowsPowerShell\Modules\Windows-Development-Shell-Tools 
+Import-Module Windows-Development-Shell-Tools
 ```
 
-2) Copy or clone the content of the repository to that folder
+### Manual import (no install)
+
+If you prefer to run straight from a clone:
 
 ```powershell
-cd $Home\Documents\WindowsPowerShell\Modules\Windows-Development-Shell-Tools
-git clone https://github.com/Therena/WindowsDevelopmentShellTools.git
+Import-Module 'C:\path\to\WindowsDevelopmentShellTools\Module\Windows-Development-Shell-Tools.psd1'
 ```
 
-3) The module will be loaded automatically in powershell
+Validate the manifest anytime:
 
-Please also see for more details:
-[Microsoft Docs - Installing a PowerShell Module](https://docs.microsoft.com/en-us/powershell/developer/module/installing-a-powershell-module)
-
-### Calling commandlets and explore help
-
-After the module is imported or installed into the powershell all the commandlets from the module are available.
-For example the "Get-DateTime" commandlet:
 ```powershell
-PS C:\>Get-DateTime
-
-    Format    Time
-    ------    ----
-    Time      13.11.2018 21:02:58
-    Unix Time 1542142978
-    File Time 131866129788272588
-    ISO Date  2018-11-13T21:02:58
+Test-ModuleManifest .\Module\Windows-Development-Shell-Tools.psd1
 ```
 
-In case you want to have some more details about a commandlet, there is a detailed help included for each single commandlet.
-To get this help displayed please use the "Get-Help" commandlet:
+Background reading: [Installing a PowerShell module](https://learn.microsoft.com/powershell/scripting/developer/module/installing-a-powershell-module).
+
+---
+
+## Commands at a glance
+
+Full syntax, parameters, and examples live in the module—use **`Get-Help`** after import (see below).
+
+| Command | What it does |
+|:--------|:---------------|
+| `Get-OperatingSystemBitness` | Reports whether the OS is treated as 64-bit or 32-bit for tool paths. |
+| `Get-DebuggerPath` | Resolves WinDbg-related executables from installed Windows kits. |
+| `Get-KernelDebuggerPath` | Resolves kernel debugger (`kd`) paths from kits. |
+| `Find-WindowsKitFile` | Locates a file under installed kit roots. |
+| `Connect-KernelDebugger` | Connects the kernel debugger to a target (e.g. named pipe). |
+| `Get-DumpAnalysis` | Runs dump analysis and returns tabular output. |
+| `Open-DumpAnalysis` | Opens interactive dump analysis in the debugger. |
+| `Get-LinesOfCode` | Counts lines of code across selected files. |
+| `Get-EicarSignature` | Returns the **EICAR** test antivirus string (safe test payload). |
+| `Get-SymbolCheck` | Resolves `symchk` from installed kits. |
+| `Find-Symbols` | Locates symbols (PDBs) for a given path. |
+| `Get-FileDetails` | File or directory metadata in tabular form. |
+| `Get-AuthenticodeDetails` | Authenticode / PKCS signer and certificate details for a file. |
+| `Get-HexDump` | Hexadecimal view of file content. |
+| `Get-GlobalAssemblyCache` | Reads GAC-related Fusion registry entries into a table. |
+| `Get-DateTime` | Current time in several common formats (Unix, ISO, file time, etc.). |
+
+---
+
+## Documentation in the shell
+
+After the module is loaded:
+
 ```powershell
 Get-Help Get-DateTime
+Get-Help Get-DumpAnalysis -Detailed
+Get-Help Find-Symbols -Examples
 ```
 
-The "Detailed" flag causes that the examples are shown as well:
+Comment-based help in [`Module/Windows-Development-Shell-Tools.psm1`](Module/Windows-Development-Shell-Tools.psm1) is the source of truth for behavior and parameters.
+
+---
+
+## Developing and testing
+
+| Script | Role |
+|:-------|:-----|
+| [`Run-Tests.ps1`](Run-Tests.ps1) | Runs the Pester suite under `Tests\`. |
+
+**Pester 5** is required:
+
 ```powershell
-Get-Help Get-DateTime -Detailed
+Install-Module Pester -Scope CurrentUser -MinimumVersion 5.0.0 -Force
+.\Run-Tests.ps1
 ```
+
+Tests assume Windows where the module uses OS-specific APIs; CI-style flags are handled inside the test script.
+
+---
+
+## Visual Studio and ConEmu
+
+If you use **Visual Studio**, the [ConEmu Integration](https://github.com/Therena/ConEmuIntegration) project can host a PowerShell session (and thus this module) inside the IDE for a tighter edit–run loop.
+
+---
+
+## Repository
+
+- **Project / issues:** [Therena/WindowsDevelopmentShellTools](https://github.com/Therena/WindowsDevelopmentShellTools) on GitHub.
+
+---
 
 ## License
 
-[Apache 2.0](https://github.com/Therena/WindowsDevelopmentShellTools/blob/master/LICENSE)
+Distributed under the [Apache License 2.0](https://github.com/Therena/WindowsDevelopmentShellTools/blob/master/LICENSE).
