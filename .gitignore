@@ -30,6 +30,7 @@
 *.exe
 *.out
 *.app
+*.xml
 
 # Visual Studio Files
 *.cache
