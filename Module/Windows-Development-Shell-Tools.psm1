@@ -1,11 +1,10 @@
 <#
 
 .SYNOPSIS
-Powershell commandlets for software development on the Microsoft Windows operating system
+PowerShell cmdlets for software development on the Microsoft Windows operating system
 
 .DESCRIPTION
-For fast and effective development of software for the Microsoft Windows operating system a bunch of tools are quite helpful.
-Having them accessable from the Powershell gives the advantage to make them very easy to use and avalible for everywhere in Windows.
+These functions wrap common Windows development tools (debuggers, symbol check, Authenticode, and related utilities) so you can drive them from PowerShell. They return structured results (typically DataTable objects) where that helps automation.
 
 .LINK
 https://github.com/Therena/Windows-Development-Shell-Tools
@@ -31,11 +30,10 @@ function Find-WindowsKitFile {
 <#
 
 .SYNOPSIS
-Get the full path to a file in the installed Windows kits 
+Gets the full path to a file under installed Windows Kits.
 
 .DESCRIPTION
-This function searches for the files in the installed windows kit (SDK, WDK).
-Please install at least one Windows kit (SDK, WDK) version before using this function.
+Searches the default Windows Kits installation directory (for example, under Program Files (x86)) for a file name you specify. Returns a DataTable with Path, WDK version folder, and debugger architecture (Bitness). Install at least one Windows SDK or WDK before using this function.
 
 .PARAMETER File
 The file name which has to be located within the Windows Kit installations
@@ -94,11 +92,10 @@ function Get-DebuggerPath {
 <#
 
 .SYNOPSIS
-Get the paths to the Windows Debug (WinDBG) executables in the installed Windows kits 
+Gets paths to WinDbg executables from installed Windows Kits.
 
 .DESCRIPTION
-This function searches for the Windows Debug executable files in the installed windows kit (SDK, WDK).
-Please install at least one Windows kit (SDK, WDK) version before using this function.
+Returns the same table shape as Find-WindowsKitFile for windbg.exe. Requires a Windows SDK or WDK installation.
 
 .LINK
 https://github.com/Therena/Windows-Development-Shell-Tools
@@ -122,11 +119,10 @@ function Get-KernelDebuggerPath {
 <#
 
 .SYNOPSIS
-Get the paths to the Windows Kernel Debug (kd) executables in the installed Windows kits 
+Gets paths to kd.exe (kernel debugger) from installed Windows Kits.
 
 .DESCRIPTION
-This function searches for the Windows Kernel Debug executable files in the installed windows kit (SDK, WDK).
-Please install at least one Windows kit (SDK, WDK) version before using this function.
+Returns the same table shape as Find-WindowsKitFile for kd.exe. Requires a Windows SDK or WDK installation.
 
 .LINK
 https://github.com/Therena/Windows-Development-Shell-Tools
@@ -150,11 +146,10 @@ function Get-SymbolCheck {
 <#
 
 .SYNOPSIS
-Get the paths to the symbol check (symchk) executables in the installed Windows kits 
+Gets paths to symchk.exe from installed Windows Kits.
 
 .DESCRIPTION
-This function searches for the symbol check executable files in the installed windows kit (SDK, WDK).
-Please install at least one Windows kit (SDK, WDK) version before using this function.
+Returns the same table shape as Find-WindowsKitFile for symchk.exe. Requires a Windows SDK or WDK installation.
 
 .LINK
 https://github.com/Therena/Windows-Development-Shell-Tools
@@ -172,12 +167,10 @@ function Get-EicarSignature {
 <#
 
 .SYNOPSIS
-Prints the eicar (European Expert Group for IT-Security) siganture
+Returns the EICAR anti-malware test file string.
 
 .DESCRIPTION
-This function prints the eciar (European Expert Group for IT-Security) sigature to the console.
-It is splitted into parts in the script itself to avoid virus detection on the script.
-For the same reason the signature is not completely added to the example output.
+Returns the standard EICAR test string (European Institute for Computer Antivirus Research) in a DataTable. The payload is built in fragments in code so static scanners are less likely to flag the module file. The example output is truncated for the same reason.
 
 .LINK
 http://www.eicar.org
@@ -207,10 +200,10 @@ function Get-OperatingSystemBitness {
 <#
 
 .SYNOPSIS
-Get bitness of the installed Windows operating system
+Gets the processor architecture class (x64 or x86) of the installed Windows OS.
 
 .DESCRIPTION
-This function optains the bitness of the current installed Microsoft Windows operating system
+Returns a one-row DataTable with column Type set to x64 or x86, based on whether the OS reports a 64-bit address space for the current process view. Other functions use this to pick matching debugger or symchk binaries.
 
 .LINK
 https://github.com/Therena/Windows-Development-Shell-Tools
@@ -238,6 +231,24 @@ x64
 }
 
 function Invoke-KernelDebuggerDumpAnalysis {
+<#
+
+.SYNOPSIS
+Runs the kernel debugger against a dump with a standard !analyze command.
+
+.DESCRIPTION
+Starts the debugger executable with -z pointing at the dump file and -c running !analyze -v. AnalyzeThenQuit adds q so the debugger exits after analysis; AnalyzeStayOpen omits q so the session stays open. Used by Get-DumpAnalysis and Open-DumpAnalysis. This command is not exported from the module.
+
+.PARAMETER DebuggerExecutable
+Full path to kd.exe or a compatible debugger.
+
+.PARAMETER DumpFile
+Full path to the crash dump file.
+
+.PARAMETER InitialCommandMode
+AnalyzeThenQuit or AnalyzeStayOpen.
+
+#>
     param(
         [Parameter(Mandatory)]
         [string]$DebuggerExecutable,
@@ -255,6 +266,24 @@ function Invoke-KernelDebuggerDumpAnalysis {
 }
 
 function Invoke-WinDbgKernelRemotePipe {
+<#
+
+.SYNOPSIS
+Starts WinDbg-style kernel debugging over a named pipe to a remote host.
+
+.DESCRIPTION
+Launches the debugger with -n and -k com:pipe targeting \\RemoteHost\pipe\PipeName. Used by Connect-KernelDebugger. This command is not exported from the module.
+
+.PARAMETER DebuggerExecutable
+Full path to windbg.exe (or compatible).
+
+.PARAMETER RemoteHost
+Remote machine name or address hosting the kernel debug pipe.
+
+.PARAMETER PipeName
+Named pipe segment (combined with the host to form the full pipe path).
+
+#>
     param(
         [Parameter(Mandatory)]
         [string]$DebuggerExecutable,
@@ -267,6 +296,27 @@ function Invoke-WinDbgKernelRemotePipe {
 }
 
 function Invoke-SymChkArguments {
+<#
+
+.SYNOPSIS
+Invokes symchk with recursive symbol resolution options.
+
+.DESCRIPTION
+Runs symchk with /r on the target path, optionally /v for verbose output and /oc with a download directory when DownloadTo is set. Used by Find-Symbols. This command is not exported from the module.
+
+.PARAMETER SymChkExecutable
+Full path to symchk.exe.
+
+.PARAMETER TargetPath
+File or folder to check.
+
+.PARAMETER DownloadTo
+Optional output directory for downloaded symbols (/oc).
+
+.PARAMETER Detailed
+If set, adds /v for verbose symchk output.
+
+#>
     param(
         [Parameter(Mandatory)]
         [string]$SymChkExecutable,
@@ -294,13 +344,13 @@ function Get-DumpAnalysis {
 <#
 
 .SYNOPSIS
-Runs and prints an analysis of a crash dump file
+Runs crash dump analysis through the installed kernel debugger.
 
 .DESCRIPTION
-Forwards the give the crash dump file to the installed kernel debugger to get otain some details about the issue.
+Resolves kd.exe (or equivalent) for the current OS bitness from the newest installed Windows Kit, then runs !analyze -v on the dump and quits the debugger when finished. Output is whatever the debugger writes to the console.
 
 .PARAMETER File
-The path to the dump file which needs to be analyzed
+Path to the crash dump file (.dmp).
 
 .LINK
 https://github.com/Therena/Windows-Development-Shell-Tools
@@ -354,7 +404,7 @@ dwmcore!CComposition::ProcessComposition+0xa0830:
     )
 
     if (-Not (Test-Path $File)) {
-       throw "Unable to find the give dump file: $File"
+       throw "Unable to find the given dump file: $File"
     }
 
     $OSBitness = Get-OperatingSystemBitness
@@ -375,19 +425,19 @@ function Open-DumpAnalysis {
 <#
 
 .SYNOPSIS
-Opens an analysis of a crash dump file
+Opens a crash dump in the kernel debugger for interactive analysis.
 
 .DESCRIPTION
-Forwards the give the crash dump file to the installed kernel debugger to get otain some details about the issue.
+Same debugger resolution as Get-DumpAnalysis, but runs !analyze -v without quitting so you can continue in the debugger session.
 
 .PARAMETER File
-The path to the dump file which needs to be analyzed
+Path to the crash dump file (.dmp).
 
 .LINK
 https://github.com/Therena/Windows-Development-Shell-Tools
 
 .EXAMPLE
-Get-DumpAnalysis -File "dwm.exe.1168.dmp"
+Open-DumpAnalysis -File "dwm.exe.1168.dmp"
 
 Microsoft (R) Windows Debugger Version 10.0.17134.1 AMD64
 Copyright (c) Microsoft Corporation. All rights reserved.
@@ -455,17 +505,16 @@ function Connect-KernelDebugger {
 <#
 
 .SYNOPSIS
-Connect the kernel debugger (windbg) to the given host system
+Connects WinDbg to a remote kernel debugging pipe.
 
 .DESCRIPTION
-Starts the kernel debugger (windbg) and connects it to the provided pipe of an host system.
-This initilaizes the Windows kernel debugging session.
+Selects windbg.exe for the current OS bitness from the newest Windows Kit, then starts it with kernel debug over a COM-named pipe to \\Host\pipe\Port (pipe name is supplied via the Port parameter).
 
 .PARAMETER Host
-The name of the host system to which the connection should be established
+Remote computer name or address that exposes the debugging pipe.
 
 .PARAMETER Port
-The port or pipe name which should be used to connect to the host system
+Named pipe name on the host (not a TCP port).
 
 .LINK
 https://github.com/Therena/Windows-Development-Shell-Tools
@@ -501,23 +550,22 @@ function Get-LinesOfCode {
 <#
 
 .SYNOPSIS
-Count the lines of code in all the selected files
+Counts text lines in files under a path.
 
 .DESCRIPTION
-Count the lines of code in the selected files or directories.
-Makes it also possible the list the lines of each single file in one directory
+Uses Select-String to count non-empty lines. By default returns one row for the path you pass. With -FileBased and optionally -Recursive, returns one row per file. Extension filtering uses Get-ChildItem -Include.
 
 .PARAMETER Path
-The path to the file(s) which lines should be counted
+File or directory to analyze.
 
 .PARAMETER Extensions
-Filter for the file extensions which should be included in the counting
+Wildcard list passed to Get-ChildItem -Include (default *.*).
 
 .PARAMETER Recursive
-Defines if the counting should be done recursive for all the subfoders
+When set, searches subfolders (Get-ChildItem -Recurse).
 
 .PARAMETER FileBased
-Defines if the result will be one line count for all files or the that the line count will be listed for each single file
+When set, emits one line-count row per file instead of a single aggregate for the path.
 
 .LINK
 https://github.com/Therena/Windows-Development-Shell-Tools
@@ -602,20 +650,19 @@ function Find-Symbols {
 <#
 
 .SYNOPSIS
-Find the symbols (PDBs) for the given path
-
+Runs symchk to resolve or download symbols for a binary or tree.
 
 .DESCRIPTION
-Query the symbol server for the symbols of the given path
+Picks symchk.exe for the current OS bitness from the newest Windows Kit, then runs it with /r against your path. Use -Detailed for symchk verbose output and -DownloadTo to pass /oc and cache symbols under that folder.
 
 .PARAMETER Path
-Path to the file or folder for which the symbols should be queried
+Existing file or directory to pass to symchk.
 
 .PARAMETER DownloadTo
-Optional download location for the found symbol files
+Directory for symchk /oc (optional).
 
 .PARAMETER Detailed
-Verbose or detailed output of the symbol query process
+Adds symchk /v for verbose logging.
 
 .LINK
 https://github.com/Therena/Windows-Development-Shell-Tools
@@ -762,20 +809,19 @@ function Get-FileDetails {
 <#
 
 .SYNOPSIS
-Obtain the details of the given file(s) or directory
+Reads file version metadata from PE files.
 
 .DESCRIPTION
-Obtain details about the given file(s) or directories. 
-Details like Version numbers, file descriptions, company, etc. will be read from the file.
+Enumerates files with Get-ChildItem, then fills a DataTable from System.Diagnostics.FileVersionInfo (version strings, company, description, and related fields).
 
 .PARAMETER File
-File(s) or directory for which the details should be obtained 
+File or directory to scan.
 
 .PARAMETER Filter
-Filter for specific file types
+Get-ChildItem -Filter pattern when enumerating under a directory (default *.*).
 
 .PARAMETER Recursive
-Defines if the the sub directories should be taken into account as well
+When set, includes subdirectories when File is a folder.
 
 .LINK
 https://github.com/Therena/Windows-Development-Shell-Tools
@@ -1016,16 +1062,16 @@ function Get-NestedAuthenticodeDetails {
 <#
 
 .SYNOPSIS
-Get recursive all the nested signatures
+Recursively expands nested Authenticode signatures into the certificate table.
 
 .DESCRIPTION
-Get recursive all the nested signatures from the parent signature
+Looks for PKCS signer unsigned attributes with OID 1.3.6.1.4.1.311.2.4.1 (nested signature). Each attribute value is decoded as a CMS signed message; nested signers are appended to the DataTable and processed recursively. This command is not exported from the module.
 
 .PARAMETER Certificate
-The parent signature to check for nested certificates
+A System.Security.Cryptography.Pkcs.SignerInfo from the outer or parent signature.
 
 .PARAMETER Table
-The resulting table of all the certificates attached to the file
+DataTable with Subject, Issuer, DigestAlgorithm, Thumbprint, and PublicKey columns (same shape as Get-AuthenticodeDetails).
 
 .LINK
 https://github.com/Therena/Windows-Development-Shell-Tools
@@ -1067,6 +1113,18 @@ Get-NestedAuthenticodeDetails -Certificate $Cert -Table $Table
 }
 
 function Get-AuthenticodeSignerInfosForFile {
+<#
+
+.SYNOPSIS
+Reads embedded PKCS#7 signer information from a PE file on disk.
+
+.DESCRIPTION
+Calls CryptQueryObject to extract an embedded CMS signature and returns SignerInfo objects. Used by Get-AuthenticodeDetails. This command is not exported from the module.
+
+.PARAMETER FilePath
+Path to a signed portable executable or other file Authenticode can query.
+
+#>
     param(
         [Parameter(Mandatory)]
         [string]$FilePath
@@ -1078,13 +1136,13 @@ function Get-AuthenticodeDetails {
 <#
 
 .SYNOPSIS
-Read the certificates from the given file
+Lists Authenticode certificates and public key material for a file.
 
 .DESCRIPTION
-Read the authenticode certificates from the given file
+Loads PKCS signer infos from the file, fills a DataTable with subject, issuer, digest algorithm, thumbprint, and public key (hex), then walks Microsoft nested-signature attributes (OID 1.3.6.1.4.1.311.2.4.1) when present.
 
 .PARAMETER File
-The path to the file which should be checked on certificates
+Path to the file to inspect (typically a signed PE).
 
 .LINK
 https://github.com/Therena/Windows-Development-Shell-Tools
@@ -1216,17 +1274,16 @@ function Get-HexDump {
 <#
 
 .SYNOPSIS
-Get the content of the file in hexadecimal format
+Formats the beginning of a file as a hex dump.
 
 .DESCRIPTION
-Get the content of the file in hexadecimal format and print it to the screen
+Returns a string with offset lines, space-separated hex bytes (8 bytes per group), and an ASCII column. Uses a small helper type compiled into the module.
 
 .PARAMETER File
-The file to convert into the hexadecimal byte format
+Path to the file to read.
 
 .PARAMETER Width
-The count of the 8 byte secments to show in one row.
-If this parameter is not set it determines the count from the window width of the shell.
+Number of 8-byte groups per row (each group is 8 bytes). When omitted, a default is derived from the host buffer width.
 
 .LINK
 https://github.com/Therena/Windows-Development-Shell-Tools
@@ -1268,11 +1325,10 @@ function Get-GlobalAssemblyCache {
 <#
 
 .SYNOPSIS
-Read the entries of the global assembly cache from the registry
+Lists GAC-related assembly entries from the Fusion registry view.
 
 .DESCRIPTION
-Read the global assembly cache elements from the registry path
-HKLM:\SOFTWARE\Microsoft\Fusion\GACChangeNotification\Default
+Reads value names under HKLM:\SOFTWARE\Microsoft\Fusion\GACChangeNotification\Default, parses comma-separated assembly identity strings, and returns a DataTable with assembly name, version, and processor architecture when the string has enough fields.
 
 .LINK
 https://github.com/Therena/Windows-Development-Shell-Tools
@@ -1323,10 +1379,10 @@ function Get-DateTime {
 <#
 
 .SYNOPSIS
-Get the date and time in different formats
+Returns the current date and time in several string formats.
 
 .DESCRIPTION
-Get the date and time in unix time, file time, ISO time, etc. 
+Outputs a DataTable with four rows: local time, Unix seconds, Windows file time, and ISO 8601 (sortable invariant string). 
 
 .LINK
 https://github.com/Therena/Windows-Development-Shell-Tools
