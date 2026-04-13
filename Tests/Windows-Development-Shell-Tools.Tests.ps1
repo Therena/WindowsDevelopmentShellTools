@@ -214,12 +214,124 @@ Describe 'Get-DumpAnalysis and Open-DumpAnalysis' {
         $missing = Join-Path $TestDrive 'nope.dmp'
         { Open-DumpAnalysis -File $missing } | Should -Throw
     }
+
+    Context 'invokes the kernel debugger shim when a matching debugger row exists' -Skip:(-not $script:IsWindowsOs) {
+        BeforeEach {
+            $script:DumpTestFile = Join-Path $TestDrive 'minimal.dmp'
+            [System.IO.File]::WriteAllBytes($script:DumpTestFile, [byte[]](0x4D, 0x44, 0x4D, 0x50))
+            $script:DumpTestFile = (Resolve-Path -LiteralPath $script:DumpTestFile).Path
+
+            Mock -ModuleName $script:ModuleName Get-OperatingSystemBitness {
+                $dt = New-Object System.Data.DataTable
+                [void]$dt.Columns.Add('Type', [string])
+                $r = $dt.NewRow()
+                $r.Type = 'x64'
+                [void]$dt.Rows.Add($r)
+                return ,$dt
+            }
+            Mock -ModuleName $script:ModuleName Get-KernelDebuggerPath {
+                $dt = New-Object System.Data.DataTable
+                [void]$dt.Columns.Add('Path', [string])
+                [void]$dt.Columns.Add('WDK', [string])
+                [void]$dt.Columns.Add('Bitness', [string])
+                $r = $dt.NewRow()
+                $r.Path = 'C:\FakeKits\10\Debuggers\x64\kd.exe'
+                $r.WDK = '10'
+                $r.Bitness = 'x64'
+                [void]$dt.Rows.Add($r)
+                return ,$dt
+            }
+            Mock -ModuleName $script:ModuleName Invoke-KernelDebuggerDumpAnalysis { }
+        }
+
+        It 'Get-DumpAnalysis requests AnalyzeThenQuit' {
+            Get-DumpAnalysis -File $script:DumpTestFile
+            Should -Invoke -CommandName Invoke-KernelDebuggerDumpAnalysis -ModuleName $script:ModuleName -Times 1 -ParameterFilter {
+                $DebuggerExecutable -eq 'C:\FakeKits\10\Debuggers\x64\kd.exe' -and
+                    $DumpFile -eq $script:DumpTestFile -and
+                    $InitialCommandMode -eq 'AnalyzeThenQuit'
+            }
+        }
+
+        It 'Open-DumpAnalysis requests AnalyzeStayOpen' {
+            Open-DumpAnalysis -File $script:DumpTestFile
+            Should -Invoke -CommandName Invoke-KernelDebuggerDumpAnalysis -ModuleName $script:ModuleName -Times 1 -ParameterFilter {
+                $DebuggerExecutable -eq 'C:\FakeKits\10\Debuggers\x64\kd.exe' -and
+                    $DumpFile -eq $script:DumpTestFile -and
+                    $InitialCommandMode -eq 'AnalyzeStayOpen'
+            }
+        }
+    }
 }
 
 Describe 'Find-Symbols' {
     It 'throws when the path does not exist' {
         $missing = Join-Path $TestDrive 'missing.dll'
         { Find-Symbols -Path $missing } | Should -Throw
+    }
+
+    Context 'invokes symchk with the expected switches' -Skip:(-not $script:IsWindowsOs) {
+        BeforeEach {
+            $script:SymTarget = Join-Path $TestDrive 'sym-target.dll'
+            [System.IO.File]::WriteAllBytes($script:SymTarget, [byte[]](0x4D, 0x5A))
+            $script:SymTarget = (Resolve-Path -LiteralPath $script:SymTarget).Path
+            $script:SymOutDir = Join-Path $TestDrive 'sym-download'
+            New-Item -ItemType Directory -Path $script:SymOutDir -Force | Out-Null
+            $script:SymOutDir = (Resolve-Path -LiteralPath $script:SymOutDir).Path
+
+            Mock -ModuleName $script:ModuleName Get-OperatingSystemBitness {
+                $dt = New-Object System.Data.DataTable
+                [void]$dt.Columns.Add('Type', [string])
+                $r = $dt.NewRow()
+                $r.Type = 'x64'
+                [void]$dt.Rows.Add($r)
+                return ,$dt
+            }
+            Mock -ModuleName $script:ModuleName Get-SymbolCheck {
+                $dt = New-Object System.Data.DataTable
+                [void]$dt.Columns.Add('Path', [string])
+                [void]$dt.Columns.Add('WDK', [string])
+                [void]$dt.Columns.Add('Bitness', [string])
+                $r = $dt.NewRow()
+                $r.Path = 'C:\FakeKits\10\Debuggers\x64\symchk.exe'
+                $r.WDK = '10'
+                $r.Bitness = 'x64'
+                [void]$dt.Rows.Add($r)
+                return ,$dt
+            }
+            Mock -ModuleName $script:ModuleName Invoke-SymChkArguments { }
+        }
+
+        It 'runs symchk with /r only by default' {
+            Find-Symbols -Path $script:SymTarget
+            Should -Invoke -CommandName Invoke-SymChkArguments -ModuleName $script:ModuleName -Times 1 -ParameterFilter {
+                $SymChkExecutable -eq 'C:\FakeKits\10\Debuggers\x64\symchk.exe' -and
+                    $TargetPath -eq $script:SymTarget -and
+                    -not $DownloadTo -and
+                    -not $Detailed
+            }
+        }
+
+        It 'adds /v when -Detailed is set' {
+            Find-Symbols -Path $script:SymTarget -Detailed
+            Should -Invoke -CommandName Invoke-SymChkArguments -ModuleName $script:ModuleName -Times 1 -ParameterFilter {
+                $Detailed -eq $true -and $TargetPath -eq $script:SymTarget -and -not $DownloadTo
+            }
+        }
+
+        It 'adds /oc when -DownloadTo is set' {
+            Find-Symbols -Path $script:SymTarget -DownloadTo $script:SymOutDir
+            Should -Invoke -CommandName Invoke-SymChkArguments -ModuleName $script:ModuleName -Times 1 -ParameterFilter {
+                $DownloadTo -eq $script:SymOutDir -and -not $Detailed
+            }
+        }
+
+        It 'combines /v and /oc when both switches are used' {
+            Find-Symbols -Path $script:SymTarget -Detailed -DownloadTo $script:SymOutDir
+            Should -Invoke -CommandName Invoke-SymChkArguments -ModuleName $script:ModuleName -Times 1 -ParameterFilter {
+                $Detailed -eq $true -and $DownloadTo -eq $script:SymOutDir
+            }
+        }
     }
 }
 
@@ -232,7 +344,41 @@ Describe 'Connect-KernelDebugger' {
             [void]$dt.Columns.Add('Bitness', [string])
             return ,$dt
         }
+        Mock -ModuleName $script:ModuleName Invoke-WinDbgKernelRemotePipe { throw 'should not be called' }
         { Connect-KernelDebugger -Host 'localhost' -Port 'test-pipe' } | Should -Not -Throw
+        Should -Invoke -CommandName Invoke-WinDbgKernelRemotePipe -ModuleName $script:ModuleName -Times 0
+    }
+
+    It 'starts WinDbg with the kernel pipe when a debugger row exists' -Skip:(-not $script:IsWindowsOs) {
+        Mock -ModuleName $script:ModuleName Get-OperatingSystemBitness {
+            $dt = New-Object System.Data.DataTable
+            [void]$dt.Columns.Add('Type', [string])
+            $r = $dt.NewRow()
+            $r.Type = 'x64'
+            [void]$dt.Rows.Add($r)
+            return ,$dt
+        }
+        Mock -ModuleName $script:ModuleName Get-DebuggerPath {
+            $dt = New-Object System.Data.DataTable
+            [void]$dt.Columns.Add('Path', [string])
+            [void]$dt.Columns.Add('WDK', [string])
+            [void]$dt.Columns.Add('Bitness', [string])
+            $r = $dt.NewRow()
+            $r.Path = 'C:\FakeKits\10\Debuggers\x64\windbg.exe'
+            $r.WDK = '10'
+            $r.Bitness = 'x64'
+            [void]$dt.Rows.Add($r)
+            return ,$dt
+        }
+        Mock -ModuleName $script:ModuleName Invoke-WinDbgKernelRemotePipe { }
+
+        Connect-KernelDebugger -Host 'srv01' -Port 'MYPIPE'
+
+        Should -Invoke -CommandName Invoke-WinDbgKernelRemotePipe -ModuleName $script:ModuleName -Times 1 -ParameterFilter {
+            $DebuggerExecutable -eq 'C:\FakeKits\10\Debuggers\x64\windbg.exe' -and
+                $RemoteHost -eq 'srv01' -and
+                $PipeName -eq 'MYPIPE'
+        }
     }
 }
 
@@ -311,6 +457,100 @@ Describe 'Get-AuthenticodeDetails' -Skip:(-not $script:IsWindowsOs) {
         $t.Rows[0]['Subject'] | Should -Match 'Test Authenticode Row'
         $t.Rows[0]['DigestAlgorithm'] | Should -Match 'sha256'
         $t.Rows[0]['Thumbprint'] | Should -Match '^[0-9A-F]{40}$'
+    }
+}
+
+Describe 'Get-NestedAuthenticodeDetails' -Skip:(-not $script:IsWindowsOs) {
+    It 'adds no rows when the signer has no nested PKCS attributes' {
+        $signers = $null
+        $cert = New-SelfSignedCertificate -Subject 'CN=NestedPath Signer' -KeyAlgorithm RSA -KeyLength 2048 -HashAlgorithm SHA256 -CertStoreLocation Cert:\CurrentUser\My -NotAfter (Get-Date).AddHours(1)
+        try {
+            $content = New-Object System.Security.Cryptography.Pkcs.ContentInfo (,[byte]2)
+            $cms = New-Object System.Security.Cryptography.Pkcs.SignedCms $content, $false
+            $cmsSigner = New-Object System.Security.Cryptography.Pkcs.CmsSigner $cert
+            $cms.ComputeSignature($cmsSigner)
+            $signers = [Therena.Encryption.Certificate]::DecodeCertificateData($cms.Encode())
+        } finally {
+            Remove-Item -Path ('Cert:\CurrentUser\My\' + $cert.Thumbprint) -Force -ErrorAction SilentlyContinue
+        }
+        InModuleScope $script:ModuleName -ArgumentList @(, $signers) -ScriptBlock {
+            param($SignerArray)
+            $tbl = New-Object System.Data.DataTable 'NestedTest'
+            [void]$tbl.Columns.Add('Subject', [string])
+            [void]$tbl.Columns.Add('Issuer', [string])
+            [void]$tbl.Columns.Add('DigestAlgorithm', [string])
+            [void]$tbl.Columns.Add('Thumbprint', [string])
+            [void]$tbl.Columns.Add('PublicKey', [string])
+            Get-NestedAuthenticodeDetails -Certificate $SignerArray[0] -Table $tbl
+            $tbl.Rows.Count | Should -Be 0
+        }
+    }
+
+    It 'expands nested Microsoft OID 1.3.6.1.4.1.311.2.4.1 using checked-in CMS fixture' {
+        $fixture = Join-Path $PSScriptRoot 'Fixtures\nested-authenticode-attribute.cms'
+        Test-Path -LiteralPath $fixture | Should -BeTrue
+        $raw = [System.IO.File]::ReadAllBytes($fixture)
+        $outer = New-Object System.Security.Cryptography.Pkcs.SignedCms
+        $outer.Decode($raw)
+        $signerInfo = $outer.SignerInfos[0]
+        InModuleScope $script:ModuleName -ArgumentList $signerInfo -ScriptBlock {
+            param($Si)
+            $tbl = New-Object System.Data.DataTable 'NestedFixture'
+            [void]$tbl.Columns.Add('Subject', [string])
+            [void]$tbl.Columns.Add('Issuer', [string])
+            [void]$tbl.Columns.Add('DigestAlgorithm', [string])
+            [void]$tbl.Columns.Add('Thumbprint', [string])
+            [void]$tbl.Columns.Add('PublicKey', [string])
+            Get-NestedAuthenticodeDetails -Certificate $Si -Table $tbl
+            $tbl.Rows.Count | Should -BeGreaterThan 0
+            @($tbl.Rows | Where-Object { $_.Subject -like '*Inner Nested Fixture*' }).Count | Should -Be 1
+        }
+    }
+}
+
+Describe 'Get-AuthenticodeDetails integration' -Skip:(-not $script:IsWindowsOs) {
+    It 'Get-AuthenticodeSignerInfosForFile returns PKCS signers for a common system PE' {
+        $picked = $null
+        foreach ($rel in @(
+                'System32\ntdll.dll',
+                'System32\kernel32.dll',
+                'System32\win32u.dll',
+                'SysWOW64\ntdll.dll'
+            )) {
+            $full = Join-Path $env:SystemRoot $rel
+            if (-not (Test-Path -LiteralPath $full)) {
+                continue
+            }
+            $list = InModuleScope $script:ModuleName -ArgumentList $full -ScriptBlock {
+                param($FilePath)
+                Get-AuthenticodeSignerInfosForFile -FilePath $FilePath
+            }
+            if ($null -ne $list -and @($list).Count -gt 0) {
+                $picked = $full
+                break
+            }
+        }
+        $picked | Should -Not -BeNullOrEmpty
+    }
+
+    It 'Get-AuthenticodeDetails returns certificate rows for a system file with embedded PKCS' {
+        $picked = $null
+        $table = $null
+        foreach ($rel in @('System32\ntdll.dll', 'System32\kernel32.dll', 'System32\win32u.dll')) {
+            $full = Join-Path $env:SystemRoot $rel
+            if (-not (Test-Path -LiteralPath $full)) {
+                continue
+            }
+            $t = Get-ModuleDataTableResult -Name 'Get-AuthenticodeDetails' -Parameters @{ File = $full }
+            if ($t.Rows.Count -gt 0) {
+                $picked = $full
+                $table = $t
+                break
+            }
+        }
+        $picked | Should -Not -BeNullOrEmpty
+        $table.Rows[0]['Subject'] | Should -Not -BeNullOrEmpty
+        $table.Rows[0]['Thumbprint'] | Should -Match '^[0-9A-F]{40}$'
     }
 }
 

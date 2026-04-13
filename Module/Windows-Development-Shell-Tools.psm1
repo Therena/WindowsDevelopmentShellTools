@@ -237,6 +237,59 @@ x64
     return ,$Table
 }
 
+function Invoke-KernelDebuggerDumpAnalysis {
+    param(
+        [Parameter(Mandatory)]
+        [string]$DebuggerExecutable,
+        [Parameter(Mandatory)]
+        [string]$DumpFile,
+        [Parameter(Mandatory)]
+        [ValidateSet('AnalyzeThenQuit', 'AnalyzeStayOpen')]
+        [string]$InitialCommandMode
+    )
+    if ($InitialCommandMode -eq 'AnalyzeThenQuit') {
+        & $DebuggerExecutable -c """!analyze -v;q""" -z """$DumpFile"""
+    } else {
+        & $DebuggerExecutable -c """!analyze -v;""" -z """$DumpFile"""
+    }
+}
+
+function Invoke-WinDbgKernelRemotePipe {
+    param(
+        [Parameter(Mandatory)]
+        [string]$DebuggerExecutable,
+        [Parameter(Mandatory)]
+        [string]$RemoteHost,
+        [Parameter(Mandatory)]
+        [string]$PipeName
+    )
+    & $DebuggerExecutable -n -k com:pipe,port=\\$RemoteHost\pipe\$PipeName,resets=0,reconnect
+}
+
+function Invoke-SymChkArguments {
+    param(
+        [Parameter(Mandatory)]
+        [string]$SymChkExecutable,
+        [Parameter(Mandatory)]
+        [string]$TargetPath,
+        [string]$DownloadTo,
+        [switch]$Detailed
+    )
+    if ($DownloadTo) {
+        if ($Detailed) {
+            & $SymChkExecutable """$TargetPath""" /r /v /oc """$DownloadTo"""
+        } else {
+            & $SymChkExecutable """$TargetPath""" /r /oc """$DownloadTo"""
+        }
+    } else {
+        if ($Detailed) {
+            & $SymChkExecutable """$TargetPath""" /r /v
+        } else {
+            & $SymChkExecutable """$TargetPath""" /r
+        }
+    }
+}
+
 function Get-DumpAnalysis {
 <#
 
@@ -313,7 +366,7 @@ dwmcore!CComposition::ProcessComposition+0xa0830:
     $BestSelectionDebugger = $Debugger | Sort-Object -Property WDK | Select-Object -first 1
 
     $BestSelectionDebugger | ForEach-Object {
-        & $_.Path -c """!analyze -v;q""" -z """$File"""
+        Invoke-KernelDebuggerDumpAnalysis -DebuggerExecutable $_.Path -DumpFile $File -InitialCommandMode AnalyzeThenQuit
     }
 }
 
@@ -394,7 +447,7 @@ dwmcore!CComposition::ProcessComposition+0xa0830:
     $BestSelectionDebugger = $Debugger | Sort-Object -Property WDK | Select-Object -first 1
 
     $BestSelectionDebugger | ForEach-Object {
-        & $_.Path -c """!analyze -v;""" -z """$File"""
+        Invoke-KernelDebuggerDumpAnalysis -DebuggerExecutable $_.Path -DumpFile $File -InitialCommandMode AnalyzeStayOpen
     }
 }
 
@@ -439,8 +492,8 @@ Connect-KernelDebugger -Host wtth0002 -Port DR-TEST-10
     
     $BestSelectionDebugger = $Debugger | Sort-Object -Property WDK | Select-Object -first 1
 
-    $BestSelectionDebugger | ForEach-Object { 
-        & $_.Path -n -k com:pipe,port=\\$host\pipe\$port,resets=0,reconnect
+    $BestSelectionDebugger | ForEach-Object {
+        Invoke-WinDbgKernelRemotePipe -DebuggerExecutable $_.Path -RemoteHost $Host -PipeName $Port
     }
 }
 
@@ -701,19 +754,7 @@ SYMCHK: PASSED + IGNORED files = 1
     $BestSelectionSymbolCheck = $SymbolCheck | Sort-Object -Property WDK | Select-Object -first 1
 
     $BestSelectionSymbolCheck | ForEach-Object {
-        if ($DownloadTo) {
-            if ($Detailed) {
-                & $_.Path """$Path""" /r /v /oc """$DownloadTo"""
-            } else {
-                & $_.Path """$Path""" /r /oc """$DownloadTo"""
-            }
-        } else {
-            if ($Detailed) {
-                & $_.Path """$Path""" /r /v
-            } else {
-                & $_.Path """$Path""" /r
-            }
-        }
+        Invoke-SymChkArguments -SymChkExecutable $_.Path -TargetPath $Path -DownloadTo $DownloadTo -Detailed:$Detailed
     }
 }
 
