@@ -656,7 +656,7 @@ Runs symchk to resolve or download symbols for a binary or tree.
 Picks symchk.exe for the current OS bitness from the newest Windows Kit, then runs it with /r against your path. Use -Detailed for symchk verbose output and -DownloadTo to pass /oc and cache symbols under that folder.
 
 .PARAMETER Path
-Existing file or directory to pass to symchk.
+One or more existing files or directories to pass to symchk. Each path is checked recursively (/r). Supply multiple paths as an array, comma-separated arguments, or pipe objects with a Path or FullName property.
 
 .PARAMETER DownloadTo
 Directory for symchk /oc (optional).
@@ -726,6 +726,26 @@ SYMCHK: FAILED files = 0
 SYMCHK: PASSED + IGNORED files = 1
 
 .EXAMPLE
+Find-Symbols -Path C:\Bin\Release, D:\Drop\Plugins
+
+Runs symchk /r once per root so symbols are resolved for each tree.
+
+.EXAMPLE
+Get-ChildItem C:\MyBuild\Release -File -Recurse | Find-Symbols
+
+Objects from Get-ChildItem bind via FullName. symchk runs once per piped item; for large trees, passing a few folder paths to -Path is usually faster than piping every file.
+
+.EXAMPLE
+Get-ChildItem D:\Drop -Filter *.dll -Recurse | Find-Symbols -DownloadTo C:\SymCache -Detailed
+
+-DownloadTo and -Detailed apply to every symchk invocation. All downloads use the same /oc directory (shared symbol cache).
+
+.EXAMPLE
+Get-ChildItem C:\Projects\*\bin -Directory | Find-Symbols
+
+Each directory is passed as its own symchk /r root.
+
+.EXAMPLE
 Find-Symbols C:\api-ms-win-core-debug-l1-1-0.dll -Detailed -DownloadTo C:\out
 
 [SYMCHK] Searching for symbols to C:\api-ms-win-core-debug-l1-1-0.dll in path srv*http://msdl.microsoft.com/download/symbols
@@ -781,27 +801,51 @@ SYMCHK: PASSED + IGNORED files = 1
     [CmdletBinding()]
     param (
         [parameter(Mandatory=$true, ValueFromPipeline=$True, ValueFromPipelinebyPropertyName=$True)]
-        [string]$Path,
+        [Alias('FullName')]
+        [string[]]$Path,
         
         [string]$DownloadTo,
 
         [switch]$Detailed
     )
 
-    if (-Not (Test-Path $Path)) {
-       throw "Unable to find the given file or folder: $Path"
+    begin {
+        $pathAccumulator = [System.Collections.Generic.List[string]]::new()
     }
+    process {
+        if ($null -eq $Path) {
+            return
+        }
+        foreach ($p in $Path) {
+            if (-not [string]::IsNullOrWhiteSpace($p)) {
+                [void]$pathAccumulator.Add($p)
+            }
+        }
+    }
+    end {
+        if ($pathAccumulator.Count -eq 0) {
+            throw 'No paths were supplied to Find-Symbols.'
+        }
 
-    $OSBitness = Get-OperatingSystemBitness
+        foreach ($singlePath in $pathAccumulator) {
+            if (-not (Test-Path -LiteralPath $singlePath)) {
+                throw "Unable to find the given file or folder: $singlePath"
+            }
+        }
 
-    $SymbolCheck = Get-SymbolCheck | Where-Object {
-        $_.Bitness -eq $OSBitness.Type
-    } 
-    
-    $BestSelectionSymbolCheck = $SymbolCheck | Sort-Object -Property WDK | Select-Object -first 1
+        $OSBitness = Get-OperatingSystemBitness
 
-    $BestSelectionSymbolCheck | ForEach-Object {
-        Invoke-SymChkArguments -SymChkExecutable $_.Path -TargetPath $Path -DownloadTo $DownloadTo -Detailed:$Detailed
+        $SymbolCheck = Get-SymbolCheck | Where-Object {
+            $_.Bitness -eq $OSBitness.Type
+        } 
+        
+        $BestSelectionSymbolCheck = $SymbolCheck | Sort-Object -Property WDK | Select-Object -first 1
+
+        foreach ($symRow in $BestSelectionSymbolCheck) {
+            foreach ($singlePath in $pathAccumulator) {
+                Invoke-SymChkArguments -SymChkExecutable $symRow.Path -TargetPath $singlePath -DownloadTo $DownloadTo -Detailed:$Detailed
+            }
+        }
     }
 }
 
