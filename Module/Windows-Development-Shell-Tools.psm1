@@ -71,9 +71,9 @@ C:\Program Files (x86)\Windows Kits\10\Debuggers\x86\kd.exe 10  x86
     )
     
     $Table = New-Object System.Data.DataTable "WindowsKit"
-    $Table.Columns.Add($(New-Object system.Data.DataColumn Path, ([string])))
-    $Table.Columns.Add($(New-Object system.Data.DataColumn WDK, ([string])))
-    $Table.Columns.Add($(New-Object system.Data.DataColumn Bitness, ([string])))
+    [void]$Table.Columns.Add($(New-Object system.Data.DataColumn Path, ([string])))
+    [void]$Table.Columns.Add($(New-Object system.Data.DataColumn WDK, ([string])))
+    [void]$Table.Columns.Add($(New-Object system.Data.DataColumn Bitness, ([string])))
 
     $FoundFiles = Get-ChildItem -Path "C:\Program Files (x86)\Windows Kits" -Filter $File -File -Recurse
 
@@ -84,10 +84,10 @@ C:\Program Files (x86)\Windows Kits\10\Debuggers\x86\kd.exe 10  x86
         $Row.WDK = $FileEntry.Directory.Parent.Parent.Name
         $Row.Bitness = $FileEntry.Directory.Name
         
-        $Table.Rows.Add($Row)
+        [void]$Table.Rows.Add($Row)
     }
 
-    return $Table
+    return ,$Table
 }
 
 function Get-DebuggerPath {
@@ -193,14 +193,14 @@ Signature
 
 #>
     $Table = New-Object System.Data.DataTable "EicarSignature"
-    $Table.Columns.Add($(New-Object system.Data.DataColumn Signature, ([string])))
+    [void]$Table.Columns.Add($(New-Object system.Data.DataColumn Signature, ([string])))
     
     $Row = $Table.NewRow()
     $Row.Signature = "X5O!P%@AP[4\PZX54(P^)7CC)7}"
     $Row.Signature += "`$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!`$H+H*"
-    $Table.Rows.Add($Row)
+    [void]$Table.Rows.Add($Row)
 
-    return $Table
+    return ,$Table
 }
 
 function Get-OperatingSystemBitness {
@@ -224,7 +224,7 @@ x64
 
 #>
     $Table = New-Object System.Data.DataTable "Bitness"
-    $Table.Columns.Add($(New-Object system.Data.DataColumn Type, ([string])))
+    [void]$Table.Columns.Add($(New-Object system.Data.DataColumn Type, ([string])))
 
     $Row = $Table.NewRow()
     if ([Environment]::Is64BitProcess -ne [Environment]::Is64BitOperatingSystem) {
@@ -232,9 +232,9 @@ x64
     } else {
         $Row.Type = 'x64'
     }
-    $Table.Rows.Add($Row)
+    [void]$Table.Rows.Add($Row)
 
-    return $Table
+    return ,$Table
 }
 
 function Get-DumpAnalysis {
@@ -519,8 +519,8 @@ C:\ConsoleApplication1\ConsoleApplication1\pch.h                                
     )
 
     $Table = New-Object System.Data.DataTable "LineCount"
-    $Table.Columns.Add($(New-Object system.Data.DataColumn Path, ([string])))
-    $Table.Columns.Add($(New-Object system.Data.DataColumn Count, ([long])))
+    [void]$Table.Columns.Add($(New-Object system.Data.DataColumn Path, ([string])))
+    [void]$Table.Columns.Add($(New-Object system.Data.DataColumn Count, ([long])))
         
     if ($Recursive) {
         $SelectedItems = Get-ChildItem $Path -Include $Extensions -Recurse
@@ -533,16 +533,16 @@ C:\ConsoleApplication1\ConsoleApplication1\pch.h                                
             $Row = $Table.NewRow()
             $Row.Path = $_.FullName
             $Row.Count = ($_ | Select-String .).Count
-            $Table.Rows.Add($Row)
+            [void]$Table.Rows.Add($Row)
         }
     } else {
         $Row = $Table.NewRow()
         $Row.Path = $Path
         $Row.Count = ($SelectedItems | Select-String .).Count
-        $Table.Rows.Add($Row)
+        [void]$Table.Rows.Add($Row)
     }
 
-    return $Table
+    return ,$Table
 }
 
 function Find-Symbols {
@@ -814,14 +814,14 @@ C:\Windows\write.exe    10.0.17134.1 (WinBuild.160101.0800)   10.0.17134.1   Win
     )
     
     $Table = New-Object System.Data.DataTable "File Details"
-    $Table.Columns.Add($(New-Object system.Data.DataColumn File, ([string])))
-    $Table.Columns.Add($(New-Object system.Data.DataColumn FileVersion, ([string])))
-    $Table.Columns.Add($(New-Object system.Data.DataColumn ProductVersion, ([string])))
-    $Table.Columns.Add($(New-Object system.Data.DataColumn FileDescription, ([string])))
-    $Table.Columns.Add($(New-Object system.Data.DataColumn CompanyName, ([string])))
-    $Table.Columns.Add($(New-Object system.Data.DataColumn InternalName, ([string])))
-    $Table.Columns.Add($(New-Object system.Data.DataColumn LegalCopyright, ([string])))
-    $Table.Columns.Add($(New-Object system.Data.DataColumn ProductName, ([string])))
+    [void]$Table.Columns.Add($(New-Object system.Data.DataColumn File, ([string])))
+    [void]$Table.Columns.Add($(New-Object system.Data.DataColumn FileVersion, ([string])))
+    [void]$Table.Columns.Add($(New-Object system.Data.DataColumn ProductVersion, ([string])))
+    [void]$Table.Columns.Add($(New-Object system.Data.DataColumn FileDescription, ([string])))
+    [void]$Table.Columns.Add($(New-Object system.Data.DataColumn CompanyName, ([string])))
+    [void]$Table.Columns.Add($(New-Object system.Data.DataColumn InternalName, ([string])))
+    [void]$Table.Columns.Add($(New-Object system.Data.DataColumn LegalCopyright, ([string])))
+    [void]$Table.Columns.Add($(New-Object system.Data.DataColumn ProductName, ([string])))
      
     if ($Recursive) {
         $FoundFiles = Get-ChildItem -Path $File -File -Filter $Filter -Recurse
@@ -843,22 +843,34 @@ C:\Windows\write.exe    10.0.17134.1 (WinBuild.160101.0800)   10.0.17134.1   Win
         $Row.LegalCopyright = $VersionInfo.LegalCopyright
         $Row.ProductName = $VersionInfo.ProductName
 
-        $Table.Rows.Add($Row)
+        [void]$Table.Rows.Add($Row)
     }
 
-    return $Table
+    return ,$Table
 }
 
-$CertificateAssemblies = (
-    "System.Security, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"
-)
+# Full .NET Framework: PKCS types ship in System.Security. .NET Core / modern PowerShell: separate PKCS assembly.
+if ($PSVersionTable.PSEdition -eq 'Core') {
+    $coreLib = [object].Assembly.Location
+    $pkcsPath = Join-Path $PSHOME 'System.Security.Cryptography.Pkcs.dll'
+    if (-not (Test-Path -LiteralPath $pkcsPath)) {
+        $pkcsPath = Join-Path (Split-Path -Parent $coreLib) 'System.Security.Cryptography.Pkcs.dll'
+    }
+    if (-not (Test-Path -LiteralPath $pkcsPath)) {
+        throw "Could not find System.Security.Cryptography.Pkcs.dll next to the PowerShell runtime. PKCS certificate helpers require PowerShell 7 on Windows with a standard install."
+    }
+    $CertificateAssemblies = @($coreLib, $pkcsPath)
+} else {
+    $CertificateAssemblies = @(
+        'System.Security, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'
+    )
+}
 
 $CertificateSource = @"
     namespace Therena.Encryption
     {
         using System;
         using System.IO;
-        using System.Collections.Generic;
         using System.Runtime.InteropServices;
         using System.Security.Cryptography.Pkcs;
 
@@ -897,17 +909,15 @@ $CertificateSource = @"
     
             public static System.Security.Cryptography.Pkcs.SignerInfo[] DecodeCertificateData(byte[] pvData)
             {
-                var certs = new List<System.Security.Cryptography.Pkcs.SignerInfo>();
-                
                 var cms = new SignedCms();
                 cms.Decode(pvData);
-
-                foreach (var signatures in cms.SignerInfos)
+                var infos = cms.SignerInfos;
+                var certs = new System.Security.Cryptography.Pkcs.SignerInfo[infos.Count];
+                for (int i = 0; i < infos.Count; i++)
                 {
-                    certs.Add(signatures);
+                    certs[i] = infos[i];
                 }
-                
-                return certs.ToArray();
+                return certs;
             }
 
             public static System.Security.Cryptography.Pkcs.SignerInfo[] GetCertificates(string filePath)
@@ -951,7 +961,15 @@ $CertificateSource = @"
     }
 "@
 
-Add-Type -ReferencedAssemblies $CertificateAssemblies -TypeDefinition $CertificateSource -Language CSharp
+$encryptionTypeLoaded = $false
+try {
+    [void][Therena.Encryption.Certificate]
+    $encryptionTypeLoaded = $true
+} catch {
+}
+if (-not $encryptionTypeLoaded) {
+    Add-Type -ReferencedAssemblies $CertificateAssemblies -TypeDefinition $CertificateSource -Language CSharp
+}
 
 function Get-NestedAuthenticodeDetails {
 <#
@@ -985,7 +1003,7 @@ Get-NestedAuthenticodeDetails -Certificate $Cert -Table $Table
         [System.Data.DataTable]$Table  
     )
 
-    $NestedCerts = $Cert.UnsignedAttributes | Where-Object {$_.Oid.Value -eq "1.3.6.1.4.1.311.2.4.1"}
+    $NestedCerts = $Certificate.UnsignedAttributes | Where-Object {$_.Oid.Value -eq "1.3.6.1.4.1.311.2.4.1"}
     $DnsName = [System.Security.Cryptography.X509Certificates.X509NameType]::DnsName;
     
     foreach($RawSubCert in $NestedCerts) {
@@ -1000,11 +1018,19 @@ Get-NestedAuthenticodeDetails -Certificate $Cert -Table $Table
             $Row.Thumbprint = $Cert.Certificate.Thumbprint;
             $Row.PublicKey = [System.BitConverter]::ToString($Cert.Certificate.PublicKey.EncodedKeyValue.RawData).Replace("-", " ")
 
-            $Table.Rows.Add($Row)
+            [void]$Table.Rows.Add($Row)
             
             Get-NestedAuthenticodeDetails -Certificate $Cert -Table $Table
         }
     }
+}
+
+function Get-AuthenticodeSignerInfosForFile {
+    param(
+        [Parameter(Mandatory)]
+        [string]$FilePath
+    )
+    return [Therena.Encryption.Certificate]::GetCertificates($FilePath)
 }
 
 function Get-AuthenticodeDetails {
@@ -1045,13 +1071,13 @@ PublicKey       : 30 82 01 0A 02 82 01 01 00 CA E0 A8 0C CC D6 94 D5 42 FA F8 60
     )
         
     $Table = New-Object System.Data.DataTable "File Certificates"
-    $Table.Columns.Add($(New-Object system.Data.DataColumn Subject, ([string])))
-    $Table.Columns.Add($(New-Object system.Data.DataColumn Issuer, ([string])))
-    $Table.Columns.Add($(New-Object system.Data.DataColumn DigestAlgorithm, ([string])))
-    $Table.Columns.Add($(New-Object system.Data.DataColumn Thumbprint, ([string])))
-    $Table.Columns.Add($(New-Object system.Data.DataColumn PublicKey, ([string])))
+    [void]$Table.Columns.Add($(New-Object system.Data.DataColumn Subject, ([string])))
+    [void]$Table.Columns.Add($(New-Object system.Data.DataColumn Issuer, ([string])))
+    [void]$Table.Columns.Add($(New-Object system.Data.DataColumn DigestAlgorithm, ([string])))
+    [void]$Table.Columns.Add($(New-Object system.Data.DataColumn Thumbprint, ([string])))
+    [void]$Table.Columns.Add($(New-Object system.Data.DataColumn PublicKey, ([string])))
     
-    $CertificateList = [Therena.Encryption.Certificate]::GetCertificates($File)
+    $CertificateList = Get-AuthenticodeSignerInfosForFile -FilePath $File
     $DnsName = [System.Security.Cryptography.X509Certificates.X509NameType]::DnsName;
     
     foreach($Cert in $CertificateList) {
@@ -1063,12 +1089,12 @@ PublicKey       : 30 82 01 0A 02 82 01 01 00 CA E0 A8 0C CC D6 94 D5 42 FA F8 60
         $Row.Thumbprint = $Cert.Certificate.Thumbprint;
         $Row.PublicKey = [System.BitConverter]::ToString($Cert.Certificate.PublicKey.EncodedKeyValue.RawData).Replace("-", " ")
 
-        $Table.Rows.Add($Row)
+        [void]$Table.Rows.Add($Row)
         
         Get-NestedAuthenticodeDetails -Certificate $Cert -Table $Table
     }
 
-    return $Table
+    return ,$Table
 }
 
 $HexDumpSource = @"
@@ -1227,9 +1253,9 @@ System.Linq                                                                     
     param ()
     
     $Table = New-Object System.Data.DataTable "Global Assembly Cache"
-    $Table.Columns.Add($(New-Object system.Data.DataColumn Assembly, ([string])))
-    $Table.Columns.Add($(New-Object system.Data.DataColumn Version, ([System.Version])))
-    $Table.Columns.Add($(New-Object system.Data.DataColumn ProcessorArchitecture, ([string])))
+    [void]$Table.Columns.Add($(New-Object system.Data.DataColumn Assembly, ([string])))
+    [void]$Table.Columns.Add($(New-Object system.Data.DataColumn Version, ([System.Version])))
+    [void]$Table.Columns.Add($(New-Object system.Data.DataColumn ProcessorArchitecture, ([string])))
 
     $GlobalAssemblyCache = Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Fusion\GACChangeNotification\Default"
     $GlobalAssemblyCache = $GlobalAssemblyCache.PSObject.Properties.Name;
@@ -1245,11 +1271,11 @@ System.Linq                                                                     
             $Row.Version = [System.Version]$AssemblyDescriptionParts[1]
             $Row.ProcessorArchitecture = $AssemblyDescriptionParts[4].ToUpper()
 
-            $Table.Rows.Add($Row)
+            [void]$Table.Rows.Add($Row)
         }
     }
 
-    return $Table
+    return ,$Table
 }
 
 function Get-DateTime {
@@ -1279,8 +1305,8 @@ ISO Date  2018-11-13T21:02:58
     param ()
     
     $Table = New-Object System.Data.DataTable "Time"
-    $Table.Columns.Add($(New-Object system.Data.DataColumn Format, ([string])))
-    $Table.Columns.Add($(New-Object system.Data.DataColumn Time, ([string])))
+    [void]$Table.Columns.Add($(New-Object system.Data.DataColumn Format, ([string])))
+    [void]$Table.Columns.Add($(New-Object system.Data.DataColumn Time, ([string])))
 
     $Time = [System.DateTime]::Now
     $Time1970 = New-Object System.DateTime 1970, 1, 1
@@ -1288,22 +1314,22 @@ ISO Date  2018-11-13T21:02:58
     $Row = $Table.NewRow()
     $Row.Format = "Time"
     $Row.Time = $Time
-    $Table.Rows.Add($Row)
+    [void]$Table.Rows.Add($Row)
 
     $Row = $Table.NewRow()
     $Row.Format = "Unix Time"
     $Row.Time = [System.Math]::Floor(($Time - $Time1970).TotalSeconds)
-    $Table.Rows.Add($Row)
+    [void]$Table.Rows.Add($Row)
     
     $Row = $Table.NewRow()
     $Row.Format = "File Time"
     $Row.Time = $Time.ToFileTime()
-    $Table.Rows.Add($Row)
+    [void]$Table.Rows.Add($Row)
     
     $Row = $Table.NewRow()
     $Row.Format = "ISO Date"
     $Row.Time = $Time.ToString("s", [System.Globalization.CultureInfo]::InvariantCulture);
-    $Table.Rows.Add($Row)
+    [void]$Table.Rows.Add($Row)
 
-    return $Table
+    return ,$Table
 }
