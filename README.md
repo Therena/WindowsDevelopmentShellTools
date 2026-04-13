@@ -79,7 +79,7 @@ Full syntax, parameters, and examples live in the module—use **`Get-Help`** af
 | `Get-LinesOfCode` | Counts lines of code across selected files. |
 | `Get-EicarSignature` | Returns the **EICAR** test antivirus string (safe test payload). |
 | `Get-SymbolCheck` | Resolves `symchk` from installed kits. |
-| `Find-Symbols` | Locates symbols (PDBs) for a given path. |
+| `Find-Symbols` | Locates symbols (PDBs) for one or more files or folders (`-Path` accepts an array; each root gets its own `symchk /r` run). |
 | `Get-FileDetails` | File or directory metadata in tabular form. |
 | `Get-AuthenticodeDetails` | Authenticode / PKCS signer and certificate details for a file. |
 | `Get-HexDump` | Hexadecimal view of file content. |
@@ -116,12 +116,6 @@ Install-Module Pester -Scope CurrentUser -MinimumVersion 5.0.0 -Force
 ```
 
 Tests assume Windows where the module uses OS-specific APIs; CI-style flags are handled inside the test script.
-
----
-
-## Visual Studio and ConEmu
-
-If you use **Visual Studio**, the [ConEmu Integration](https://github.com/Therena/ConEmuIntegration) project can host a PowerShell session (and thus this module) inside the IDE for a tighter edit–run loop.
 
 ---
 

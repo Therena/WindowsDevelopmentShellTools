@@ -312,6 +312,36 @@ Describe 'Find-Symbols' {
             }
         }
 
+        It 'runs symchk once per path when multiple paths are passed' {
+            $second = Join-Path $TestDrive 'sym-target2.dll'
+            [System.IO.File]::WriteAllBytes($second, [byte[]](0x4D, 0x5A))
+            $secondResolved = (Resolve-Path -LiteralPath $second).Path
+            Find-Symbols -Path @($script:SymTarget, $secondResolved)
+            Should -Invoke -CommandName Invoke-SymChkArguments -ModuleName $script:ModuleName -Times 2
+            Should -Invoke -CommandName Invoke-SymChkArguments -ModuleName $script:ModuleName -Times 1 -ParameterFilter { $TargetPath -eq $script:SymTarget }
+            Should -Invoke -CommandName Invoke-SymChkArguments -ModuleName $script:ModuleName -Times 1 -ParameterFilter { $TargetPath -eq $secondResolved }
+        }
+
+        It 'accumulates FullName paths from pipeline input' {
+            $second = Join-Path $TestDrive 'sym-target2.dll'
+            [System.IO.File]::WriteAllBytes($second, [byte[]](0x4D, 0x5A))
+            $secondResolved = (Resolve-Path -LiteralPath $second).Path
+            Get-Item -LiteralPath $script:SymTarget, $secondResolved | Find-Symbols
+            Should -Invoke -CommandName Invoke-SymChkArguments -ModuleName $script:ModuleName -Times 2
+            Should -Invoke -CommandName Invoke-SymChkArguments -ModuleName $script:ModuleName -Times 1 -ParameterFilter { $TargetPath -eq $script:SymTarget }
+            Should -Invoke -CommandName Invoke-SymChkArguments -ModuleName $script:ModuleName -Times 1 -ParameterFilter { $TargetPath -eq $secondResolved }
+        }
+
+        It 'passes -DownloadTo to every symchk run when piping multiple paths' {
+            $second = Join-Path $TestDrive 'sym-target2.dll'
+            [System.IO.File]::WriteAllBytes($second, [byte[]](0x4D, 0x5A))
+            $secondResolved = (Resolve-Path -LiteralPath $second).Path
+            Get-Item -LiteralPath $script:SymTarget, $secondResolved | Find-Symbols -DownloadTo $script:SymOutDir
+            Should -Invoke -CommandName Invoke-SymChkArguments -ModuleName $script:ModuleName -Times 2 -ParameterFilter {
+                $DownloadTo -eq $script:SymOutDir -and -not $Detailed
+            }
+        }
+
         It 'adds /v when -Detailed is set' {
             Find-Symbols -Path $script:SymTarget -Detailed
             Should -Invoke -CommandName Invoke-SymChkArguments -ModuleName $script:ModuleName -Times 1 -ParameterFilter {
