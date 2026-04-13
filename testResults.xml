@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<test-results xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="nunit_schema_2.5.xsd" name="Pester" total="20" errors="0" failures="0" not-run="0" inconclusive="0" ignored="0" skipped="0" invalid="0" date="2026-04-13" time="22:32:43">
+  <environment machine-name="DR-HOME-V11" cwd="C:\Sources\Github\Therena\WindowsDevelopmentShellTools" user-domain="DR-HOME-V11" nunit-version="2.5.8.0" user="david" platform="Microsoft Windows 11 Pro|C:\WINDOWS|\Device\Harddisk0\Partition3" os-version="10.0.26200" clr-version="10.0.5" />
+  <culture-info current-culture="en-DE" current-uiculture="en-US" />
+  <test-suite type="TestFixture" name="Pester" executed="True" result="Success" success="True" time="1.7587" asserts="0" description="Pester">
+    <results>
+      <test-suite type="TestFixture" name="C:\Sources\Github\Therena\WindowsDevelopmentShellTools\Tests\Windows-Development-Shell-Tools.Tests.ps1" executed="True" result="Success" success="True" time="1.7587" asserts="0" description="C:\Sources\Github\Therena\WindowsDevelopmentShellTools\Tests\Windows-Development-Shell-Tools.Tests.ps1">
+        <results>
+          <test-suite type="TestFixture" name="Windows-Development-Shell-Tools manifest" executed="True" result="Success" success="True" time="0.0774" asserts="0" description="Windows-Development-Shell-Tools manifest">
+            <results>
+              <test-case description="passes Test-ModuleManifest" name="Windows-Development-Shell-Tools manifest.passes Test-ModuleManifest" time="0.0719" asserts="0" success="True" result="Success" executed="True" />
+            </results>
+          </test-suite>
+          <test-suite type="TestFixture" name="Exported commands" executed="True" result="Success" success="True" time="0.1017" asserts="0" description="Exported commands">
+            <results>
+              <test-case description="exports every function listed in FunctionsToExport" name="Exported commands.exports every function listed in FunctionsToExport" time="0.0201" asserts="0" success="True" result="Success" executed="True" />
+            </results>
+          </test-suite>
+          <test-suite type="TestFixture" name="Get-DateTime" executed="True" result="Success" success="True" time="0.1278" asserts="0" description="Get-DateTime">
+            <results>
+              <test-case description="returns four time formats" name="Get-DateTime.returns four time formats" time="0.022" asserts="0" success="True" result="Success" executed="True" />
+            </results>
+          </test-suite>
+          <test-suite type="TestFixture" name="Get-EicarSignature" executed="True" result="Success" success="True" time="0.1435" asserts="0" description="Get-EicarSignature">
+            <results>
+              <test-case description="returns the EICAR test string" name="Get-EicarSignature.returns the EICAR test string" time="0.0111" asserts="0" success="True" result="Success" executed="True" />
+            </results>
+          </test-suite>
+          <test-suite type="TestFixture" name="Get-OperatingSystemBitness" executed="True" result="Success" success="True" time="0.16" asserts="0" description="Get-OperatingSystemBitness">
+            <results>
+              <test-case description="returns x64 or x86" name="Get-OperatingSystemBitness.returns x64 or x86" time="0.0108" asserts="0" success="True" result="Success" executed="True" />
+            </results>
+          </test-suite>
+          <test-suite type="TestFixture" name="Find-WindowsKitFile" executed="True" result="Success" success="True" time="0.5483" asserts="0" description="Find-WindowsKitFile">
+            <results>
+              <test-case description="returns a DataTable with Path, WDK, and Bitness columns" name="Find-WindowsKitFile.returns a DataTable with Path, WDK, and Bitness columns" time="0.1852" asserts="0" success="True" result="Success" executed="True" />
+              <test-case description="maps directory layout into at least one row" name="Find-WindowsKitFile.maps directory layout into at least one row" time="0.1903" asserts="0" success="True" result="Success" executed="True" />
+            </results>
+          </test-suite>
+          <test-suite type="TestFixture" name="Get-DebuggerPath, Get-KernelDebuggerPath, Get-SymbolCheck" executed="True" result="Success" success="True" time="1.1215" asserts="0" description="Get-DebuggerPath, Get-KernelDebuggerPath, Get-SymbolCheck">
+            <results>
+              <test-case description="Get-DebuggerPath searches for windbg.exe" name="Get-DebuggerPath, Get-KernelDebuggerPath, Get-SymbolCheck.Get-DebuggerPath searches for windbg.exe" time="0.1871" asserts="0" success="True" result="Success" executed="True" />
+              <test-case description="Get-KernelDebuggerPath searches for kd.exe" name="Get-DebuggerPath, Get-KernelDebuggerPath, Get-SymbolCheck.Get-KernelDebuggerPath searches for kd.exe" time="0.1839" asserts="0" success="True" result="Success" executed="True" />
+              <test-case description="Get-SymbolCheck searches for symchk.exe" name="Get-DebuggerPath, Get-KernelDebuggerPath, Get-SymbolCheck.Get-SymbolCheck searches for symchk.exe" time="0.1881" asserts="0" success="True" result="Success" executed="True" />
+            </results>
+          </test-suite>
+          <test-suite type="TestFixture" name="Get-LinesOfCode" executed="True" result="Success" success="True" time="1.1848" asserts="0" description="Get-LinesOfCode">
+            <results>
+              <test-case description="counts lines for a single file path" name="Get-LinesOfCode.counts lines for a single file path" time="0.0221" asserts="0" success="True" result="Success" executed="True" />
+              <test-case description="lists per file when -FileBased and -Recursive are set" name="Get-LinesOfCode.lists per file when -FileBased and -Recursive are set" time="0.0249" asserts="0" success="True" result="Success" executed="True" />
+            </results>
+          </test-suite>
+          <test-suite type="TestFixture" name="Get-DumpAnalysis and Open-DumpAnalysis" executed="True" result="Success" success="True" time="1.2246" asserts="0" description="Get-DumpAnalysis and Open-DumpAnalysis">
+            <results>
+              <test-case description="Get-DumpAnalysis throws when the dump file is missing" name="Get-DumpAnalysis and Open-DumpAnalysis.Get-DumpAnalysis throws when the dump file is missing" time="0.0075" asserts="0" success="True" result="Success" executed="True" />
+              <test-case description="Open-DumpAnalysis throws when the dump file is missing" name="Get-DumpAnalysis and Open-DumpAnalysis.Open-DumpAnalysis throws when the dump file is missing" time="0.013" asserts="0" success="True" result="Success" executed="True" />
+            </results>
+          </test-suite>
+          <test-suite type="TestFixture" name="Find-Symbols" executed="True" result="Success" success="True" time="1.2425" asserts="0" description="Find-Symbols">
+            <results>
+              <test-case description="throws when the path does not exist" name="Find-Symbols.throws when the path does not exist" time="0.0118" asserts="0" success="True" result="Success" executed="True" />
+            </results>
+          </test-suite>
+          <test-suite type="TestFixture" name="Connect-KernelDebugger" executed="True" result="Success" success="True" time="1.2932" asserts="0" description="Connect-KernelDebugger">
+            <results>
+              <test-case description="does not throw when no debugger is found (no-op)" name="Connect-KernelDebugger.does not throw when no debugger is found (no-op)" time="0.0456" asserts="0" success="True" result="Success" executed="True" />
+            </results>
+          </test-suite>
+          <test-suite type="TestFixture" name="Get-HexDump" executed="True" result="Success" success="True" time="1.3069" asserts="0" description="Get-HexDump">
+            <results>
+              <test-case description="returns a hex string starting with an offset line" name="Get-HexDump.returns a hex string starting with an offset line" time="0.0049" asserts="0" success="True" result="Success" executed="True" />
+            </results>
+          </test-suite>
+          <test-suite type="TestFixture" name="Get-FileDetails" executed="True" result="Success" success="True" time="1.3568" asserts="0" description="Get-FileDetails">
+            <results>
+              <test-case description="returns version metadata for a copied System32 executable" name="Get-FileDetails.returns version metadata for a copied System32 executable" time="0.0411" asserts="0" success="True" result="Success" executed="True" />
+            </results>
+          </test-suite>
+          <test-suite type="TestFixture" name="Get-AuthenticodeDetails" executed="True" result="Success" success="True" time="1.6245" asserts="0" description="Get-AuthenticodeDetails">
+            <results>
+              <test-case description="fills the certificate table from PKCS signer metadata" name="Get-AuthenticodeDetails.fills the certificate table from PKCS signer metadata" time="0.0564" asserts="0" success="True" result="Success" executed="True" />
+            </results>
+          </test-suite>
+          <test-suite type="TestFixture" name="Get-GlobalAssemblyCache" executed="True" result="Success" success="True" time="1.6616" asserts="0" description="Get-GlobalAssemblyCache">
+            <results>
+              <test-case description="returns a DataTable with expected columns and parses Fusion-style value names" name="Get-GlobalAssemblyCache.returns a DataTable with expected columns and parses Fusion-style value names" time="0.0259" asserts="0" success="True" result="Success" executed="True" />
+            </results>
+          </test-suite>
+        </results>
+      </test-suite>
+    </results>
+  </test-suite>
+</test-results>
