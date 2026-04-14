@@ -30,7 +30,8 @@
         'Get-AuthenticodeDetails',
         'Get-HexDump',
         'Get-GlobalAssemblyCache',
-        'Get-DateTime'
+        'Get-DateTime',
+        'Get-WindowsErrorInfo'
     )
 
     CmdletsToExport = @()
