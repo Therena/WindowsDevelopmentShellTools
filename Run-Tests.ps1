@@ -35,7 +35,8 @@ if (-not (Test-Path -LiteralPath $testPath)) {
     exit 1
 }
 
-$result = Invoke-Pester -Path $testPath -PassThru -CI
+# Omit -CI: Pester 5.7.x can throw Arithmetic overflow in Export-XmlReport on some hosts.
+$result = Invoke-Pester -Path $testPath -PassThru
 if ($result.FailedCount -gt 0) {
     exit 1
 }

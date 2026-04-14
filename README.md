@@ -85,6 +85,7 @@ Full syntax, parameters, and examples live in the module—use **`Get-Help`** af
 | `Get-HexDump` | Hexadecimal view of file content. |
 | `Get-GlobalAssemblyCache` | Reads GAC-related Fusion registry entries into a table. |
 | `Get-DateTime` | Current time in several common formats (Unix, ISO, file time, etc.). |
+| `Get-WindowsErrorInfo` | Interprets a raw 32-bit value as Win32, HRESULT, and NTSTATUS with best-effort descriptions and derived cross-conversions. |
 
 ---
 
