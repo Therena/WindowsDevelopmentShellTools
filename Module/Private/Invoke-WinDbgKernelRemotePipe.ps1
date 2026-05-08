@@ -25,5 +25,6 @@ Named pipe segment (combined with the host to form the full pipe path).
         [Parameter(Mandatory)]
         [string]$PipeName
     )
-    & $DebuggerExecutable -n -k com:pipe,port=\\$RemoteHost\pipe\$PipeName,resets=0,reconnect
+    $kernelPipeArg = "com:pipe,port=\\$RemoteHost\pipe\$PipeName,resets=0,reconnect"
+    & $DebuggerExecutable -n -k $kernelPipeArg
 }
