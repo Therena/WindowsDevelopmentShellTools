@@ -1,4 +1,4 @@
-﻿#
+#
 # Windows-Development-Shell-Tools module manifest (see LICENSE in repo root for full license text).
 #
 
@@ -29,6 +29,7 @@
         'Get-FileDetails',
         'Get-AuthenticodeDetails',
         'Get-HexDump',
+        'Expand-Zip',
         'Get-GlobalAssemblyCache',
         'Get-DateTime',
         'Get-WindowsErrorInfo'
@@ -40,7 +41,33 @@
 
     FileList = @(
         'Windows-Development-Shell-Tools.psm1',
-        'Windows-Development-Shell-Tools.psd1'
+        'Windows-Development-Shell-Tools.psd1',
+        'Module/Public/Connect-KernelDebugger.ps1',
+        'Module/Public/Expand-Zip.ps1',
+        'Module/Public/Find-Symbols.ps1',
+        'Module/Public/Find-WindowsKitFile.ps1',
+        'Module/Public/Get-AuthenticodeDetails.ps1',
+        'Module/Public/Get-DateTime.ps1',
+        'Module/Public/Get-DebuggerPath.ps1',
+        'Module/Public/Get-DumpAnalysis.ps1',
+        'Module/Public/Get-EicarSignature.ps1',
+        'Module/Public/Get-FileDetails.ps1',
+        'Module/Public/Get-GlobalAssemblyCache.ps1',
+        'Module/Public/Get-HexDump.ps1',
+        'Module/Public/Get-KernelDebuggerPath.ps1',
+        'Module/Public/Get-LinesOfCode.ps1',
+        'Module/Public/Get-OperatingSystemBitness.ps1',
+        'Module/Public/Get-SymbolCheck.ps1',
+        'Module/Public/Get-WindowsErrorInfo.ps1',
+        'Module/Public/Open-DumpAnalysis.ps1',
+        'Module/Private/00-Initialize-Types.ps1',
+        'Module/Private/Get-AuthenticodeSignerInfosForFile.ps1',
+        'Module/Private/Get-NestedAuthenticodeDetails.ps1',
+        'Module/Private/Invoke-KernelDebuggerDumpAnalysis.ps1',
+        'Module/Private/Invoke-SymChkArguments.ps1',
+        'Module/Private/Invoke-WinDbgKernelRemotePipe.ps1',
+        'Module/Private/Invoke-ZipExpansion.ps1',
+        'Module/Private/Select-WindowsKitFileForOs.ps1'
     )
 
     PrivateData = @{
