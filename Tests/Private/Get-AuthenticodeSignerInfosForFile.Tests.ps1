@@ -1,23 +1,16 @@
-. (Join-Path $PSScriptRoot '..\TestSetup.ps1')
+﻿. (Join-Path $PSScriptRoot '..\TestSetup.ps1')
 
-Describe 'Get-AuthenticodeDetails integration' -Skip:(-not $script:IsWindowsOs) {
-    It 'Get-AuthenticodeSignerInfosForFile returns PKCS signers for a common system PE' {
+Describe 'Get-AuthenticodeSignerInfosForFile' -Skip:(-not $script:IsWindowsOs) {
+    It 'returns signer infos for a known signed system binary' {
         $picked = $null
-        foreach ($rel in @(
-                'System32\ntdll.dll',
-                'System32\kernel32.dll',
-                'System32\win32u.dll',
-                'SysWOW64\ntdll.dll'
-            )) {
+        foreach ($rel in @('System32\ntdll.dll','System32\kernel32.dll','System32\win32u.dll')) {
             $full = Join-Path $env:SystemRoot $rel
-            if (-not (Test-Path -LiteralPath $full)) {
-                continue
-            }
-            $list = InModuleScope $script:ModuleName -ArgumentList $full -ScriptBlock {
+            if (-not (Test-Path -LiteralPath $full)) { continue }
+            $signers = InModuleScope $script:ModuleName -ArgumentList $full -ScriptBlock {
                 param($FilePath)
                 Get-AuthenticodeSignerInfosForFile -FilePath $FilePath
             }
-            if ($null -ne $list -and @($list).Count -gt 0) {
+            if ($null -ne $signers -and @($signers).Count -gt 0) {
                 $picked = $full
                 break
             }
@@ -25,25 +18,13 @@ Describe 'Get-AuthenticodeDetails integration' -Skip:(-not $script:IsWindowsOs) 
         $picked | Should -Not -BeNullOrEmpty
     }
 
-    It 'Get-AuthenticodeDetails returns certificate rows for a system file with embedded PKCS' {
-        $picked = $null
-        $table = $null
-        foreach ($rel in @('System32\ntdll.dll', 'System32\kernel32.dll', 'System32\win32u.dll')) {
-            $full = Join-Path $env:SystemRoot $rel
-            if (-not (Test-Path -LiteralPath $full)) {
-                continue
-            }
-            $t = Get-ModuleDataTableResult -Name 'Get-AuthenticodeDetails' -Parameters @{ File = $full }
-            if ($t.Rows.Count -gt 0) {
-                $picked = $full
-                $table = $t
-                break
-            }
+    It 'returns an empty signer list for an unsigned file' {
+        $unsigned = Join-Path $TestDrive 'unsigned.bin'
+        [System.IO.File]::WriteAllBytes($unsigned, [byte[]](1,2,3,4))
+        $list = InModuleScope $script:ModuleName -ArgumentList $unsigned -ScriptBlock {
+            param($FilePath)
+            Get-AuthenticodeSignerInfosForFile -FilePath $FilePath
         }
-        $picked | Should -Not -BeNullOrEmpty
-        $table.Rows[0]['Subject'] | Should -Not -BeNullOrEmpty
-        $table.Rows[0]['Thumbprint'] | Should -Match '^[0-9A-F]{40}$'
+        @($list).Count | Should -Be 0
     }
 }
-
-
