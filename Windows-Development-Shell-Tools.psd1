@@ -4,7 +4,7 @@
 
 @{
     RootModule              = 'Windows-Development-Shell-Tools.psm1'
-    ModuleVersion           = '2.0.0.0'
+    ModuleVersion           = '2.0.1.0'
     GUID                    = '33c4f980-d38b-4e07-a4b9-c127e4fd61bb'
     Author                  = 'David Roller'
     CompanyName             = 'Therena'
@@ -29,6 +29,7 @@
         'Get-FileDetails',
         'Get-AuthenticodeDetails',
         'Get-HexDump',
+        'Get-HlkxDigitalSignature',
         'Expand-Zip',
         'Get-GlobalAssemblyCache',
         'Get-DateTime',
@@ -54,6 +55,7 @@
         'Module/Public/Get-FileDetails.ps1',
         'Module/Public/Get-GlobalAssemblyCache.ps1',
         'Module/Public/Get-HexDump.ps1',
+        'Module/Public/Get-HlkxDigitalSignature.ps1',
         'Module/Public/Get-KernelDebuggerPath.ps1',
         'Module/Public/Get-LinesOfCode.ps1',
         'Module/Public/Get-OperatingSystemBitness.ps1',

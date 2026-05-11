@@ -7,7 +7,7 @@
 | | |
 |:---|:---|
 | **Module name** | `Windows-Development-Shell-Tools` |
-| **Current version** | See `ModuleVersion` in [`Module/Windows-Development-Shell-Tools.psd1`](Module/Windows-Development-Shell-Tools.psd1) |
+| **Current version** | See `ModuleVersion` in [`Windows-Development-Shell-Tools.psd1`](Windows-Development-Shell-Tools.psd1) at the repo root |
 | **PowerShell** | Windows PowerShell **5.1** and **PowerShell 7+** (`pwsh`) on Windows |
 | **License** | [Apache 2.0](https://github.com/Therena/WindowsDevelopmentShellTools/blob/master/LICENSE) |
 
@@ -25,7 +25,7 @@
 
 ### Recommended: install to your profile (both hosts)
 
-From a clone of this repository, run the installer at the repo root. It copies the [`Module`](Module) folder into the **per-user** module paths for **Windows PowerShell** and **PowerShell 7+** so either `powershell.exe` or `pwsh.exe` can load the same version.
+From a clone of this repository, run the installer at the repo root. It should copy the **root** [`Windows-Development-Shell-Tools.psd1`](Windows-Development-Shell-Tools.psd1) and [`Windows-Development-Shell-Tools.psm1`](Windows-Development-Shell-Tools.psm1) together with the [`Module`](Module) folder (which holds `Public` and `Private` scripts) into the **per-user** module paths for **Windows PowerShell** and **PowerShell 7+** so either `powershell.exe` or `pwsh.exe` can load the same version.
 
 ```powershell
 cd C:\path\to\WindowsDevelopmentShellTools
@@ -50,13 +50,13 @@ Import-Module Windows-Development-Shell-Tools
 If you prefer to run straight from a clone:
 
 ```powershell
-Import-Module 'C:\path\to\WindowsDevelopmentShellTools\Module\Windows-Development-Shell-Tools.psd1'
+Import-Module 'C:\path\to\WindowsDevelopmentShellTools\Windows-Development-Shell-Tools.psd1'
 ```
 
 Validate the manifest anytime:
 
 ```powershell
-Test-ModuleManifest .\Module\Windows-Development-Shell-Tools.psd1
+Test-ModuleManifest .\Windows-Development-Shell-Tools.psd1
 ```
 
 Background reading: [Installing a PowerShell module](https://learn.microsoft.com/powershell/scripting/developer/module/installing-a-powershell-module).
@@ -100,7 +100,7 @@ Get-Help Get-DumpAnalysis -Detailed
 Get-Help Find-Symbols -Examples
 ```
 
-Comment-based help in [`Module/Windows-Development-Shell-Tools.psm1`](Module/Windows-Development-Shell-Tools.psm1) is the source of truth for behavior and parameters.
+Comment-based help in [`Module/Public/*.ps1`](Module/Public) and related private scripts under [`Module/Private`](Module/Private) are the source of truth for behavior and parameters; the root [`Windows-Development-Shell-Tools.psm1`](Windows-Development-Shell-Tools.psm1) only loads those files.
 
 ---
 
