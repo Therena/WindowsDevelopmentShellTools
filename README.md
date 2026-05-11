@@ -87,6 +87,9 @@ Full syntax, parameters, and examples live in the module—use **`Get-Help`** af
 | `Get-GlobalAssemblyCache` | Reads GAC-related Fusion registry entries into a table. |
 | `Get-DateTime` | Current time in several common formats (Unix, ISO, file time, etc.). |
 | `Get-WindowsErrorInfo` | Interprets a raw 32-bit value as Win32, HRESULT, and NTSTATUS with best-effort descriptions and derived cross-conversions. |
+| `Install-GitCommitMsgTicketHook` | Installs or refreshes a Git `commit-msg` hook so commits must include the Jira-style ticket id inferred from the branch (see `Get-Help` for bypass and exempt branches). |
+| `Invoke-GitCommitMsgTicketHook` | Runs the same validation as the hook against a commit message file (for scripting or hook runners). |
+| `Uninstall-GitCommitMsgTicketHook` | Removes the hook files written by `Install-GitCommitMsgTicketHook` (only files that contain the module marker). |
 
 ---
 
@@ -98,6 +101,7 @@ After the module is loaded:
 Get-Help Get-DateTime
 Get-Help Get-DumpAnalysis -Detailed
 Get-Help Find-Symbols -Examples
+Get-Help Install-GitCommitMsgTicketHook -Full
 ```
 
 Comment-based help in [`Module/Public/*.ps1`](Module/Public) and related private scripts under [`Module/Private`](Module/Private) are the source of truth for behavior and parameters; the root [`Windows-Development-Shell-Tools.psm1`](Windows-Development-Shell-Tools.psm1) only loads those files.

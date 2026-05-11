@@ -4,12 +4,12 @@
 
 @{
     RootModule              = 'Windows-Development-Shell-Tools.psm1'
-    ModuleVersion           = '2.0.1.0'
+    ModuleVersion           = '2.0.3.0'
     GUID                    = '33c4f980-d38b-4e07-a4b9-c127e4fd61bb'
     Author                  = 'David Roller'
     CompanyName             = 'Therena'
     Copyright               = 'Copyright (c) 2026 David Roller. All rights reserved.'
-    Description             = 'PowerShell cmdlets for software development on Microsoft Windows.'
+    Description             = 'PowerShell cmdlets for software development on Microsoft Windows (kits, debugging, signing, Git commit-msg ticket hook, and more).'
     PowerShellVersion       = '5.0'
     DotNetFrameworkVersion  = '4.5'
     CLRVersion              = '4.0'
@@ -33,7 +33,10 @@
         'Expand-Zip',
         'Get-GlobalAssemblyCache',
         'Get-DateTime',
-        'Get-WindowsErrorInfo'
+        'Get-WindowsErrorInfo',
+        'Invoke-GitCommitMsgTicketHook',
+        'Install-GitCommitMsgTicketHook',
+        'Uninstall-GitCommitMsgTicketHook'
     )
 
     CmdletsToExport = @()
@@ -50,6 +53,9 @@
         'Module/Public/Get-AuthenticodeDetails.ps1',
         'Module/Public/Get-DateTime.ps1',
         'Module/Public/Get-DebuggerPath.ps1',
+        'Module/Public/Install-GitCommitMsgTicketHook.ps1',
+        'Module/Public/Invoke-GitCommitMsgTicketHook.ps1',
+        'Module/Public/Uninstall-GitCommitMsgTicketHook.ps1',
         'Module/Public/Get-DumpAnalysis.ps1',
         'Module/Public/Get-EicarSignature.ps1',
         'Module/Public/Get-FileDetails.ps1',
